@@ -31,6 +31,20 @@ meal_typeの判定:
 - 時間帯の指定がなければ現在時刻で判定（12時前=breakfast, 12-17時=lunch, 17時以降=dinner）
 """
 
+def extract_json(text: str) -> dict:
+    """レスポンスからJSONを抽出"""
+    import json, re
+    # Try direct parse first
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    # Find JSON block in text
+    match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+    if match:
+        return json.loads(match.group())
+    raise ValueError(f"No JSON found in: {text[:200]}")
+
 def analyze_food_text(text: str) -> dict:
     """テキストから食事を解析"""
     response = client.messages.create(
@@ -41,8 +55,7 @@ def analyze_food_text(text: str) -> dict:
             "content": f"{FOOD_ANALYSIS_PROMPT}\n\n食事内容: {text}"
         }]
     )
-    import json
-    return json.loads(response.content[0].text)
+    return extract_json(response.content[0].text)
 
 
 def analyze_food_image(image_url: str) -> dict:
@@ -63,5 +76,4 @@ def analyze_food_image(image_url: str) -> dict:
             ]
         }]
     )
-    import json
-    return json.loads(response.content[0].text)
+    return extract_json(response.content[0].text)

@@ -195,8 +195,10 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
 
         await reply_line_message(reply_token, msg)
     except Exception as e:
-        # If AI analysis fails, just acknowledge
-        await reply_line_message(reply_token, f"📝 メモしました: {t}")
+        import traceback
+        err = traceback.format_exc()
+        print(f"[ERROR] Food analysis failed: {err}")
+        await reply_line_message(reply_token, f"⚠️ 解析エラー: {str(e)[:100]}\n\n元のメッセージ: {t}\n\n「朝食 ハンバーグ定食」のように書くとうまくいくかも")
 
 
 async def handle_image_message(reply_token: str, message_id: str):
