@@ -1,0 +1,16 @@
+{
+  "name": "75Quest",
+  "short_name": "75Quest",
+  "description": "かわちのボディメイク",
+  "start_url": "/75quest/",
+  "display": "standalone",
+  "background_color": "#0b0b12",
+  "theme_color": "#0b0b12",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>💪</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
