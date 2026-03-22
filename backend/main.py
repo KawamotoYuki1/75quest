@@ -5,6 +5,7 @@ import hashlib
 import base64
 from datetime import date, datetime
 from contextlib import asynccontextmanager
+from config import JST
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
@@ -19,7 +20,7 @@ import db
 import ai
 
 # Scheduler for alerts
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(timezone="Asia/Tokyo")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -121,7 +122,7 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
 
     # Training done
     if any(k in t for k in ["筋トレ完了", "トレーニング完了", "トレ完了", "運動した", "筋トレした"]):
-        today_dow = date.today().weekday()
+        today_dow = datetime.now(JST).date().weekday()
         menus = {0: "上半身A", 2: "下半身A", 4: "上半身B", 5: "下半身B"}
         menu = menus.get(today_dow, "トレーニング")
         db.record_workout(menu, [], completed=True)
@@ -253,7 +254,7 @@ async def handle_image_message(reply_token: str, message_id: str):
 
 async def send_today_summary(reply_token: str = None):
     """Send today's summary"""
-    today_dow = date.today().weekday()
+    today_dow = datetime.now(JST).date().weekday()
     is_train = today_dow in TRAINING_DAYS
     is_fast = today_dow in FASTING_DAYS
     menus = {0: "上半身A 💪", 2: "下半身A 🦵", 4: "上半身B 💪", 5: "下半身B 🦵"}
@@ -298,7 +299,7 @@ def setup_scheduler():
 async def alert_morning():
     """Morning greeting + today's plan"""
     import asyncio
-    today_dow = date.today().weekday()
+    today_dow = datetime.now(JST).date().weekday()
     is_train = today_dow in TRAINING_DAYS
     is_fast = today_dow in FASTING_DAYS
     menus = {0: "上半身A 💪", 2: "下半身A 🦵", 4: "上半身B 💪", 5: "下半身B 🦵"}
@@ -314,14 +315,14 @@ async def alert_morning():
 
 async def alert_supplement():
     """Pre-lunch supplement reminder (fasting days)"""
-    today_dow = date.today().weekday()
+    today_dow = datetime.now(JST).date().weekday()
     if today_dow not in FASTING_DAYS:
         return
     await send_line_message("🍵 もうすぐ12:00！\n食事前に：\n・防風通聖散\n・難消化性デキストリン\n飲んでから食べてね！")
 
 async def alert_training():
     """Training reminder if not done"""
-    today_dow = date.today().weekday()
+    today_dow = datetime.now(JST).date().weekday()
     if today_dow not in TRAINING_DAYS:
         return
     workout = db.get_today_workout()

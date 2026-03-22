@@ -1,7 +1,11 @@
 import os
+from datetime import timezone, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Timezone
+JST = timezone(timedelta(hours=9))
 
 # LINE
 LINE_CHANNEL_SECRET = os.getenv("LINE_CHANNEL_SECRET")
