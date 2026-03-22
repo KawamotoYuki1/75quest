@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>75Quest — かわちのボディメイク</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0b0b12;--card:#13131e;--card2:#1a1a28;--bdr:#222238;
+--g:#00ff88;--c:#00e5ff;--p:#ff5e9e;--o:#ffaa40;--v:#b060ff;--y:#ffe156;
+--t:#eaeaf4;--t2:#8080a0;--t3:#505068;
+}
+body{background:var(--bg);color:var(--t);font-family:'Zen Maru Gothic',sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 10%,rgba(0,255,136,.03),transparent 50%),radial-gradient(ellipse at 80% 90%,rgba(176,96,255,.03),transparent 50%);pointer-events:none}
+.app{max-width:460px;margin:0 auto;padding:12px 16px;position:relative;z-index:1}
+
+/* Header */
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:14px 0 8px}
+.hdr-logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,var(--y),var(--o));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hdr-beauty{font-size:11px;color:var(--p);background:rgba(255,94,158,.1);padding:4px 12px;border-radius:12px;text-decoration:none;border:1px solid rgba(255,94,158,.2)}
+
+/* Date Nav */
+.date-nav{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0}
+.date-nav button{background:var(--card);border:1px solid var(--bdr);color:var(--t);width:36px;height:36px;border-radius:10px;font-size:16px;cursor:pointer;transition:all .2s}
+.date-nav button:active{background:var(--bdr)}
+.date-center{text-align:center}
+.date-main{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700}
+.date-sub{font-size:10px;color:var(--t2);margin-top:2px}
+.date-today{font-size:10px;color:var(--g);cursor:pointer;margin-top:2px;display:none}
+
+/* Week Calendar */
+.week{display:flex;gap:3px;margin:10px 0 12px}
+.day{flex:1;text-align:center;padding:6px 2px;border-radius:10px;background:var(--card);border:1px solid var(--bdr);cursor:pointer;transition:all .2s;min-width:0}
+.day:active{transform:scale(.95)}
+.day.sel{border-color:var(--g);background:rgba(0,255,136,.06);box-shadow:0 0 10px rgba(0,255,136,.1)}
+.day.has-ev{border-color:var(--v)}
+.day-nm{font-size:9px;color:var(--t3);margin-bottom:2px}
+.day-n{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px}
+.day.sel .day-n{color:var(--g)}
+.day-ic{font-size:9px;line-height:1.2}
+.day-tg{display:block;font-size:7px;padding:1px 3px;border-radius:3px;margin-top:2px}
+.tg-tr{background:rgba(255,94,158,.12);color:var(--p)}
+.tg-rs{background:rgba(0,229,255,.1);color:var(--c)}
+.tg-fs{background:rgba(0,255,136,.1);color:var(--g)}
+.tg-ev{background:rgba(176,96,255,.12);color:var(--v)}
+
+/* Weight */
+.wt{background:linear-gradient(135deg,var(--card),var(--card2));border:1px solid var(--bdr);border-radius:16px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.wt::before{content:'';position:absolute;top:-40%;right:-20%;width:140px;height:140px;background:radial-gradient(circle,rgba(255,225,86,.04),transparent 70%);pointer-events:none}
+.wt-top{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.wt-now{font-family:'Orbitron',sans-serif;font-size:36px;font-weight:900;color:var(--g);text-shadow:0 0 14px rgba(0,255,136,.2);line-height:1}
+.wt-u{font-size:12px;color:var(--t3)}
+.wt-m{flex:1}.wt-rm{font-size:11px;color:var(--c)}.wt-pc{font-size:10px;color:var(--t3)}
+.wt-br{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:4px}
+.wt-fl{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--g),var(--c));transition:width 1.5s}
+.wt-in{display:flex;gap:6px;margin-top:10px}
+.wt-inp{flex:1;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:7px;color:var(--t);font-size:13px;font-family:'Orbitron',sans-serif;text-align:center;outline:none}
+.wt-inp:focus{border-color:var(--g)}
+.wt-btn{background:linear-gradient(135deg,var(--g),var(--c));border:none;border-radius:8px;padding:7px 12px;font-weight:700;font-size:11px;color:var(--bg);cursor:pointer}
+.wt-log-t{font-size:10px;color:var(--c);cursor:pointer;text-align:center;margin-top:6px}
+.wt-log{display:none;margin-top:8px;max-height:160px;overflow-y:auto}
+.wt-log.open{display:block}
+.wl-i{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:11px}
+.wl-d{color:var(--t2)}.wl-v{font-family:'Orbitron',sans-serif;color:var(--g)}.wl-df{font-size:10px}.wl-dn{color:var(--g)}.wl-up{color:var(--p)}
+
+/* Fasting mini */
+.fst{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);border:1px solid var(--bdr);border-radius:14px;margin-bottom:10px}
+.fst-ring{position:relative;width:48px;height:48px;flex-shrink:0}
+.fst-ring svg{transform:rotate(-90deg)}
+.fst-ring circle{fill:none;stroke-width:4}
+.fst-ring .trk{stroke:var(--bdr)}
+.fst-ring .fl{stroke:url(#fg);stroke-linecap:round;transition:stroke-dashoffset 1s}
+.fst-md{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.fst-t{font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;color:var(--g);line-height:1}
+.fst-l{font-size:7px;color:var(--t3);margin-top:1px}
+.fst-info{flex:1}.fst-s{font-size:13px;font-weight:700}.fst-ds{font-size:10px;color:var(--t2);margin-top:1px}
+.fst-off{text-align:center;padding:10px;font-size:12px;color:var(--t2)}
+
+/* Today's Schedule */
+.td{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px;margin-bottom:10px}
+.td-t{font-size:13px;font-weight:900;margin-bottom:8px}
+.sc{display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--bg);border-radius:8px;margin-bottom:4px;border-left:3px solid var(--bdr);font-size:11px}
+.sc.now{border-left-color:var(--g);background:rgba(0,255,136,.03)}
+.sc.ev-hi{border-left-color:var(--v);background:rgba(176,96,255,.04)}
+.sc-t{font-family:'Orbitron',sans-serif;font-size:9px;color:var(--t2);min-width:36px}
+.sc-i{font-size:12px;min-width:18px;text-align:center}
+.sc-tx{flex:1}
+
+/* Tabs */
+.tabs{display:flex;gap:3px;margin:6px 0 8px}
+.tab{flex:1;padding:7px;border-radius:10px;border:1px solid var(--bdr);background:transparent;color:var(--t2);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .2s;font-family:'Zen Maru Gothic',sans-serif}
+.tab.on{border-color:var(--o);color:var(--o);background:rgba(255,170,64,.06)}
+.sec{display:none}.sec.on{display:block;animation:fu .2s ease}
+@keyframes fu{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Cards */
+.cd{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px;margin-bottom:10px}
+.cd-t{font-size:12px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+
+/* Exercise */
+.ex{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.ex:last-child{border:none}
+.ck{width:20px;height:20px;border-radius:5px;border:2px solid var(--bdr);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;color:transparent;transition:all .2s;flex-shrink:0}
+.ck.done{background:var(--g);border-color:var(--g);color:var(--bg)}
+.ex-n{font-size:12px;flex:1}.ex-n.x{text-decoration:line-through;color:var(--t3)}
+.ex-d{font-size:10px;color:var(--t2)}
+.ex-p{text-align:center;margin-top:6px;font-size:10px;color:var(--t2)}
+.ex-p b{color:var(--g);font-family:'Orbitron',sans-serif}
+
+/* Suppl */
+.sp{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);flex-wrap:wrap}
+.sp:last-child{border:none}
+.sp-ck{width:16px;height:16px;border-radius:50%;border:2px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all .2s;flex-shrink:0;background:transparent}
+.sp-ck.done{background:var(--c);border-color:var(--c);color:var(--bg)}
+.sp-n{font-size:11px;flex:1}.sp-w{font-size:9px;color:var(--t3)}
+
+/* Meals */
+.ml{display:flex;align-items:center;gap:7px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.ml:last-child{border:none}
+.ml-i{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.ml-n{font-size:11px;flex:1}.ml-dt{font-size:9px;color:var(--t2)}
+.ml-k{font-family:'Orbitron',sans-serif;font-size:11px;color:var(--c)}
+
+/* Events */
+.ev{display:flex;align-items:center;gap:8px;padding:10px;background:var(--bg);border-radius:10px;border-left:3px solid var(--v);margin-bottom:5px;position:relative}
+.ev.past{opacity:.35}
+.ev.active{background:rgba(176,96,255,.06);border-width:2px}
+.ev-dt{text-align:center;min-width:40px}
+.ev-mo{font-size:8px;color:var(--t3)}.ev-dy{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;color:var(--v)}
+.ev-n{font-size:11px;font-weight:500}.ev-ds{font-size:9px;color:var(--t2);margin-top:1px}
+.ev-del{position:absolute;right:8px;top:8px;background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer}
+.ev-del:hover{color:var(--p)}
+
+/* Event add form */
+.ev-form{padding:10px;background:var(--bg);border-radius:10px;margin-top:8px}
+.ev-form input,.ev-form select{background:var(--card);border:1px solid var(--bdr);border-radius:6px;padding:6px 8px;color:var(--t);font-size:11px;outline:none;font-family:'Zen Maru Gothic',sans-serif;width:100%;margin-bottom:6px}
+.ev-form input:focus{border-color:var(--v)}
+.ev-row{display:flex;gap:4px}
+.ev-row>*{flex:1}
+.ev-add-btn{width:100%;background:var(--v);border:none;border-radius:8px;padding:8px;font-weight:700;font-size:11px;color:#fff;cursor:pointer;margin-top:2px}
+
+footer{text-align:center;padding:20px 0;font-size:9px;color:var(--t3)}
+footer a{color:var(--p);text-decoration:none}
+/* Shop */
+.sh{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03)}
+.sh:last-child{border:none}
+.sh-ck{width:18px;height:18px;border-radius:5px;border:2px solid var(--bdr);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent;transition:all .2s;flex-shrink:0;background:transparent}
+.sh-ck.done{background:var(--o);border-color:var(--o);color:var(--bg)}
+.sh-n{font-size:11px;flex:1}.sh-n.x{text-decoration:line-through;color:var(--t3)}
+.sh-del{background:none;border:none;color:var(--t3);font-size:12px;cursor:pointer}
+.sh-del:hover{color:var(--p)}
+</style>
+</head>
+<body>
+<div class="app">
+
+<header class="hdr">
+  <div class="hdr-logo">75Quest</div>
+  <div style="font-size:10px;color:var(--t3)" id="hdrSub2"></div>
+</header>
+
+<!-- Date Nav -->
+<div class="date-nav">
+  <button onclick="navDay(-1)">◀</button>
+  <div class="date-center">
+    <div class="date-main" id="dateMain"></div>
+    <div class="date-sub" id="dateSub"></div>
+    <div class="date-today" id="dateToday" onclick="goToday()">↩ 今日に戻る</div>
+  </div>
+  <button onclick="navDay(1)">▶</button>
+</div>
+
+<!-- Week Calendar -->
+<div class="week" id="weekCal"></div>
+
+<!-- Weight -->
+<div class="wt">
+  <div class="wt-top">
+    <div><span class="wt-now" id="wtNow">--.-</span><span class="wt-u">kg</span></div>
+    <div class="wt-m">
+      <div class="wt-rm" id="wtRm">あと 18.0kg → 75kg</div>
+      <div class="wt-pc">達成率 <span id="wtPc">0</span>%</div>
+      <div class="wt-br"><div class="wt-fl" id="wtBar"></div></div>
+    </div>
+  </div>
+  <div class="wt-in"><input type="number" class="wt-inp" id="wtInp" placeholder="体重" step="0.1"><button class="wt-btn" onclick="recW()">⚖️ 記録</button></div>
+  <div class="wt-log-t" onclick="document.getElementById('wtLog').classList.toggle('open')">📊 ログ ▼</div>
+  <div class="wt-log" id="wtLog"></div>
+</div>
+
+<!-- Fasting (only on training days) -->
+<div id="fastArea"></div>
+
+<!-- Today Schedule -->
+<div class="td">
+  <div class="td-t" id="tdTitle">📋 今日やること</div>
+  <div id="tdSch"></div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab on" data-s="food">🍽 食事</button>
+  <button class="tab" data-s="train">💪 トレ</button>
+  <button class="tab" data-s="event">📅 イベント</button>
+</div>
+
+<!-- Food -->
+<div class="sec on" id="s-food">
+  <div class="cd"><div class="cd-t">🍽 食事</div><div id="meals"></div></div>
+  <div class="cd"><div class="cd-t">💊 サプリ</div><div id="suppls"></div></div>
+  <div class="cd">
+    <div class="cd-t">🛒 買い物リスト</div>
+    <div id="shopList"></div>
+    <div class="ev-form" style="margin-top:6px">
+      <div class="ev-row">
+        <input type="text" id="shopInp" placeholder="買うもの（例: プロテイン）">
+        <button class="ev-add-btn" style="width:auto;flex:none;padding:6px 12px" onclick="addShop()">追加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Training -->
+<div class="sec" id="s-train">
+  <div class="cd"><div class="cd-t" id="trTitle">💪 トレーニング</div><div id="trTag"></div><div id="trExs"></div><div class="ex-p" id="exP"></div></div>
+</div>
+
+<!-- Events -->
+<div class="sec" id="s-event">
+  <div class="cd">
+    <div class="cd-t">📅 イベント管理</div>
+    <div id="evList"></div>
+    <div class="ev-form">
+      <input type="text" id="evName" placeholder="イベント名（例: 塩抜き3日間）">
+      <div class="ev-row">
+        <input type="date" id="evStart">
+        <input type="date" id="evEnd">
+      </div>
+      <select id="evIcon">
+        <option value="🧂">🧂 塩抜き</option>
+        <option value="🍵">🍵 ファスティング</option>
+        <option value="🥤">🥤 プロテイン置換</option>
+        <option value="🔄">🔄 5:2ダイエット</option>
+        <option value="🔥">🔥 チャレンジ</option>
+        <option value="💊">💊 サプリ購入</option>
+        <option value="📋">📋 その他</option>
+      </select>
+      <button class="ev-add-btn" onclick="addEv()">＋ イベント追加</button>
+    </div>
+  </div>
+  <div class="cd">
+    <div class="cd-t">📈 ロードマップ</div>
+    <div style="font-size:10px;line-height:2.2;color:var(--t2)">
+      <div>🟡 1〜3ヶ月 85kg — 脂肪を落とす</div>
+      <div>🔵 4〜6ヶ月 80kg — 筋トレ強度UP+筋肉</div>
+      <div>🟣 7〜12ヶ月 <b style="color:var(--y)">75kg マッチョ達成！🏆</b></div>
+    </div>
+  </div>
+</div>
+
+<footer>75Quest — <a href="beauty.html">Beauty Tips</a></footer>
+</div>
+
+<svg style="position:absolute;width:0;height:0"><defs><linearGradient id="fg" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="var(--g)"/><stop offset="100%" stop-color="var(--c)"/></linearGradient></defs></svg>
+
+<script>
+const K='75q_';
+const dayN=['日','月','火','水','木','金','土'];
+const dayFull=['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
+
+// Training plan: training days = Mon(1), Wed(3), Fri(5), Sat(6)
+// Fasting 16:8 ONLY on training days
+const TRAIN={
+  0:{type:'rest',label:'休息日 🧘',fast:false,ex:[]},
+  1:{type:'train',label:'上半身A 💪',fast:true,ex:[
+    {n:'膝つき腕立て伏せ',d:'3×10'},{n:'ペットボトルプレス',d:'3×12'},{n:'サイドレイズ',d:'3×15'},{n:'プランク',d:'3×30秒'}
+  ]},
+  2:{type:'rest',label:'休息日 🧘',fast:false,ex:[]},
+  3:{type:'train',label:'下半身A 🦵',fast:true,ex:[
+    {n:'スクワット',d:'3×12'},{n:'ランジ',d:'3×10 片脚'},{n:'カーフレイズ',d:'3×20'},{n:'脚上げ',d:'3×10'}
+  ]},
+  4:{type:'rest',label:'休息日 🧘',fast:false,ex:[]},
+  5:{type:'train',label:'上半身B 💪',fast:true,ex:[
+    {n:'腕立て伏せ',d:'できる回数×3'},{n:'バックエクステンション',d:'3×12'},{n:'アームカール',d:'3×12'},{n:'クランチ',d:'3×15'}
+  ]},
+  6:{type:'train',label:'下半身B 🦵',fast:true,ex:[
+    {n:'ワイドスクワット',d:'3×12'},{n:'ブルガリアンスクワット',d:'3×8 片脚'},{n:'ヒップリフト',d:'3×15'},{n:'マウンテンクライマー',d:'3×20秒'}
+  ]}
+};
+
+const SUPPLS=[
+  {n:'EZOBOLIC プロテイン',w:'トレ後 or 朝',i:'🥤'},
+  {n:'クレアチン 5g',w:'毎日',i:'💪'},
+  {n:'難消化性デキストリン',w:'食前',i:'🧪'},
+  {n:'防風通聖散',w:'食前 1日3回',i:'🍵'},
+  {n:'コーヒー',w:'運動30分前',i:'☕'},
+  {n:'水 2L',w:'1日通して',i:'💧',track:true}
+];
+
+const MEALS=[
+  {icon:'🌅',name:'朝食',bg:'rgba(255,170,64,.1)'},
+  {icon:'☀️',name:'昼食',bg:'rgba(0,229,255,.1)'},
+  {icon:'🌙',name:'夕食',bg:'rgba(176,96,255,.1)'},
+  {icon:'🥤',name:'間食',bg:'rgba(255,94,158,.1)'}
+];
+
+// Default events
+const DEFAULT_EVENTS=[
+  {id:1,start:'2026-03-30',end:'2026-04-01',name:'塩抜き3日間',icon:'🧂'},
+  {id:2,start:'2026-04-06',end:'2026-04-06',name:'24時間ファスティング',icon:'🍵'},
+  {id:3,start:'2026-04-14',end:'2026-04-18',name:'プロテイン置き換えWeek',icon:'🥤'},
+  {id:4,start:'2026-04-27',end:'2026-04-29',name:'塩抜き3日間',icon:'🧂'},
+  {id:5,start:'2026-05-05',end:'2026-05-06',name:'48時間ファスティング',icon:'🔥'},
+  {id:6,start:'2026-05-18',end:'2026-05-24',name:'5:2ダイエットWeek',icon:'🔄'},
+];
+
+// State
+let viewDate=new Date();
+let events=JSON.parse(localStorage.getItem(K+'ev')||'null')||DEFAULT_EVENTS;
+function saveEv(){localStorage.setItem(K+'ev',JSON.stringify(events))}
+function fmtD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function isToday(d){const t=new Date();return fmtD(d)===fmtD(t)}
+function getEvFor(dateStr){
+  return events.filter(e=>dateStr>=e.start&&dateStr<=e.end);
+}
+
+// Date navigation
+function navDay(n){viewDate.setDate(viewDate.getDate()+n);render()}
+function goToday(){viewDate=new Date();render()}
+
+// Render everything
+function render(){
+  const d=viewDate;const dw=d.getDay();const plan=TRAIN[dw];
+  const ds=fmtD(d);const today=isToday(d);const hh=new Date().getHours();
+
+  // Date display
+  document.getElementById('dateMain').textContent=`${d.getMonth()+1}/${d.getDate()}（${dayN[dw]}）`;
+  document.getElementById('dateSub').textContent=dayFull[dw];
+  document.getElementById('dateToday').style.display=today?'none':'block';
+
+  // Week calendar
+  const wk=document.getElementById('weekCal');let wh='';
+  for(let i=-3;i<4;i++){
+    const wd=new Date(d);wd.setDate(wd.getDate()+i);
+    const wdw=wd.getDay();const wp=TRAIN[wdw];
+    const wds=fmtD(wd);const isSel=i===0;
+    const wev=getEvFor(wds);const hasEv=wev.length>0;
+    const icons=[];
+    if(wp.fast)icons.push('🕐');
+    if(wp.type==='train')icons.push('💪');else icons.push('🧘');
+    if(hasEv)icons.push(wev[0].icon);
+
+    let tags='';
+    if(wp.fast)tags+=`<span class="day-tg tg-fs">断食</span>`;
+    if(wp.type==='train')tags+=`<span class="day-tg tg-tr">筋トレ</span>`;
+    else tags+=`<span class="day-tg tg-rs">休み</span>`;
+    if(hasEv)tags+=`<span class="day-tg tg-ev">${wev[0].name.slice(0,3)}</span>`;
+
+    wh+=`<div class="day${isSel?' sel':''}${hasEv?' has-ev':''}" onclick="viewDate=new Date('${wds}T12:00:00');render()">
+      <div class="day-nm">${dayN[wdw]}</div>
+      <div class="day-n">${wd.getDate()}</div>
+      <div class="day-ic">${icons.join('')}</div>
+      ${tags}
+    </div>`;
+  }
+  wk.innerHTML=wh;
+
+  // Fasting (only on training days)
+  const fa=document.getElementById('fastArea');
+  if(plan.fast&&today){
+    const tot=hh*60+new Date().getMinutes();const s=12*60,e=20*60;
+    let rem,pct,st,lb,ds;
+    if(tot>=s&&tot<e){rem=e-tot;pct=(tot-s)/(e-s);st='🟢 食事OK';lb='終了まで';ds='食べてOK！Pを意識';}
+    else{const ft=16*60;let el=tot>=e?tot-e:tot+(24*60-e);rem=ft-el;if(rem<0)rem=0;pct=el/ft;st='🔴 断食中';lb='食事まで';ds='水・お茶・ブラックコーヒーのみ';}
+    const rh=Math.floor(rem/60),rm=rem%60;
+    fa.innerHTML=`<div class="fst"><div class="fst-ring"><svg width="48" height="48" viewBox="0 0 48 48"><circle class="trk" cx="24" cy="24" r="20"/><circle class="fl" cx="24" cy="24" r="20" stroke-dasharray="126" stroke-dashoffset="${126*(1-Math.min(pct,1))}"/></svg><div class="fst-md"><div class="fst-t">${String(rh).padStart(2,'0')}:${String(rm).padStart(2,'0')}</div><div class="fst-l">${lb}</div></div></div><div class="fst-info"><div class="fst-s" style="color:${tot>=s&&tot<e?'var(--g)':'var(--p)'}">${st}</div><div class="fst-ds">${ds}</div></div></div>`;
+  }else if(plan.fast&&!today){
+    fa.innerHTML=`<div class="fst"><div style="font-size:20px;min-width:48px;text-align:center">🕐</div><div class="fst-info"><div class="fst-s">16:8 断食日</div><div class="fst-ds">12:00〜20:00 が食事ウィンドウ</div></div></div>`;
+  }else{
+    fa.innerHTML=`<div class="fst"><div style="font-size:20px;min-width:48px;text-align:center">🍽</div><div class="fst-info"><div class="fst-s" style="color:var(--c)">自由食の日</div><div class="fst-ds">断食なし — 好きな時間に食事OK（カロリーは意識）</div></div></div>`;
+  }
+
+  // Today's schedule
+  const evs=getEvFor(ds);
+  const items=[];
+  if(evs.length)evs.forEach(e=>items.push({t:'EVENT',i:e.icon,tx:e.name,cls:'ev-hi'}));
+  if(plan.fast){
+    if(today&&hh<12)items.push({t:'〜12',i:'🔴',tx:'断食中（水・お茶のみ）',cls:hh<12?'now':''});
+    items.push({t:'食前',i:'🍵',tx:'防風通聖散 + 難消化性デキストリン',cls:''});
+    items.push({t:'12:00',i:'🟢',tx:'食事開始！タンパク質優先',cls:today&&hh>=12&&hh<13?'now':''});
+  }
+  if(plan.type==='train'){
+    items.push({t:'運動前',i:'☕',tx:'コーヒー飲む',cls:''});
+    items.push({t:'運動',i:'💪',tx:`${plan.label}（20分）`,cls:''});
+    items.push({t:'運動後',i:'🥤',tx:'EZOBOLIC + クレアチン',cls:''});
+  }else{
+    items.push({t:'推奨',i:'🚶',tx:'散歩30分（有酸素）',cls:''});
+    items.push({t:'任意',i:'🥤',tx:'EZOBOLIC プロテイン',cls:''});
+  }
+  if(plan.fast)items.push({t:'20:00',i:'🔴',tx:'食事終了 → 断食スタート',cls:today&&hh>=20?'now':''});
+
+  document.getElementById('tdTitle').textContent=today?'📋 今日やること':`📋 ${d.getMonth()+1}/${d.getDate()} のスケジュール`;
+  document.getElementById('tdSch').innerHTML=items.map(s=>`<div class="sc ${s.cls}"><span class="sc-t">${s.t}</span><span class="sc-i">${s.i}</span><span class="sc-tx">${s.tx}</span></div>`).join('');
+
+  // Training
+  document.getElementById('trTag').innerHTML=plan.type==='train'
+    ?`<div style="font-size:11px;color:var(--p);margin-bottom:6px">${plan.label}</div>`
+    :`<div style="text-align:center;padding:16px;color:var(--t2);font-size:12px">休息日 🧘 ストレッチや散歩を</div>`;
+  if(plan.ex.length){
+    document.getElementById('trExs').innerHTML=plan.ex.map(e=>
+      `<div class="ex"><button class="ck" onclick="togCk(this)">✓</button><div><div class="ex-n">${e.n}</div><div class="ex-d">${e.d}</div></div></div>`
+    ).join('');
+    document.getElementById('exP').innerHTML=`完了 <b id="exDn">0</b> / ${plan.ex.length}`;
+  }else{document.getElementById('trExs').innerHTML='';document.getElementById('exP').textContent='';}
+
+  // Meals
+  document.getElementById('meals').innerHTML=MEALS.map((m,i)=>{
+    const note=plan.fast&&i===0?'断食中（12:00まで）':plan.fast?'12:00〜20:00内':'自由に食べてOK';
+    return`<div class="ml"><div class="ml-i" style="background:${m.bg}">${m.icon}</div><div style="flex:1"><div class="ml-n">${m.name}</div><div class="ml-dt">${note}</div></div><div class="ml-k">—</div></div>`;
+  }).join('');
+
+  // Events list
+  renderEvents();
+}
+
+// Supplements (static, rendered once)
+let water=parseInt(localStorage.getItem(K+'w2')||'0');
+function updW2(n){water=Math.max(0,Math.min(water+n,3000));localStorage.setItem(K+'w2',water);
+  document.getElementById('w2v').textContent=water;document.getElementById('w2b').style.width=Math.min(100,water/2000*100)+'%';document.getElementById('w2p').textContent=Math.round(water/2000*100);}
+document.getElementById('suppls').innerHTML=SUPPLS.map(s=>{
+  if(s.track)return`<div class="sp"><span style="margin-right:3px">${s.i}</span><span class="sp-n">${s.n}</span><span class="sp-w">${s.w}</span>
+    <div style="width:100%;margin-top:4px;display:flex;align-items:center;gap:4px">
+      <button onclick="updW2(-250)" style="background:var(--bdr);border:none;color:var(--t);width:24px;height:24px;border-radius:5px;cursor:pointer;font-size:12px">−</button>
+      <div style="flex:1"><div style="display:flex;justify-content:space-between;font-size:9px;color:var(--t2);margin-bottom:2px"><span><span id="w2v">${water}</span>ml</span><span><span id="w2p">${Math.round(water/2000*100)}</span>%</span></div>
+      <div style="height:3px;background:var(--bg);border-radius:2px;overflow:hidden"><div id="w2b" style="height:100%;border-radius:2px;background:linear-gradient(90deg,var(--c),#0088ff);width:${Math.min(100,water/2000*100)}%;transition:width .3s"></div></div></div>
+      <button onclick="updW2(250)" style="background:var(--c);border:none;color:var(--bg);width:24px;height:24px;border-radius:5px;cursor:pointer;font-weight:700;font-size:12px">+</button>
+    </div></div>`;
+  return`<div class="sp"><button class="sp-ck" onclick="this.classList.toggle('done')">✓</button><span style="margin-right:3px">${s.i}</span><span class="sp-n">${s.n}</span><span class="sp-w">${s.w}</span></div>`;
+}).join('');
+
+// Events
+function renderEvents(){
+  const now=new Date();
+  document.getElementById('evList').innerHTML=events.sort((a,b)=>a.start.localeCompare(b.start)).map(e=>{
+    const sd=new Date(e.start+'T12:00:00');const ed=new Date(e.end+'T12:00:00');
+    const past=ed<now;const active=fmtD(viewDate)>=e.start&&fmtD(viewDate)<=e.end;
+    return`<div class="ev${past?' past':''}${active?' active':''}" style="border-color:var(--v)">
+      <div class="ev-dt"><div class="ev-mo">${sd.getMonth()+1}月</div><div class="ev-dy">${sd.getDate()}</div></div>
+      <div style="flex:1"><div class="ev-n">${e.icon} ${e.name}${active?' <span style="font-size:9px;background:var(--v);color:#fff;padding:1px 5px;border-radius:3px">実施中</span>':''}</div>
+      <div class="ev-ds">${e.start.slice(5)}〜${e.end.slice(5)}</div></div>
+      <button class="ev-del" onclick="delEv(${e.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function addEv(){
+  const name=document.getElementById('evName').value.trim();
+  const start=document.getElementById('evStart').value;
+  const end=document.getElementById('evEnd').value||start;
+  const icon=document.getElementById('evIcon').value;
+  if(!name||!start)return;
+  events.push({id:Date.now(),start,end,name,icon});
+  saveEv();document.getElementById('evName').value='';render();
+}
+function delEv(id){events=events.filter(e=>e.id!==id);saveEv();render();}
+
+// Weight
+function getWL(){return JSON.parse(localStorage.getItem(K+'wl')||'[]')}
+function setWL(l){localStorage.setItem(K+'wl',JSON.stringify(l))}
+function recW(){
+  const v=parseFloat(document.getElementById('wtInp').value);if(!v||v<40||v>200)return;
+  const l=getWL();const d=fmtD(new Date());
+  const i=l.findIndex(x=>x.d===d);
+  if(i>=0)l[i].w=v;else l.push({d,w:v});
+  l.sort((a,b)=>b.d.localeCompare(a.d));setWL(l);
+  document.getElementById('wtInp').value='';updWt(v);renWL();
+}
+function updWt(c){
+  const s=93,g=75,r=s-g,lost=s-c,p=Math.max(0,Math.min(100,lost/r*100));
+  document.getElementById('wtNow').textContent=c.toFixed(1);
+  document.getElementById('wtRm').textContent=`あと ${(c-g).toFixed(1)}kg → 75kg`;
+  document.getElementById('wtPc').textContent=Math.round(p);
+  document.getElementById('wtBar').style.width=p+'%';
+}
+function renWL(){
+  const l=getWL();const c=document.getElementById('wtLog');
+  if(!l.length){c.innerHTML='<div style="text-align:center;color:var(--t3);padding:10px;font-size:10px">まだ記録なし</div>';return;}
+  c.innerHTML=l.slice(0,20).map((e,i)=>{
+    const prev=l[i+1];let dh='';
+    if(prev){const d=e.w-prev.w;dh=`<span class="wl-df ${d<=0?'wl-dn':'wl-up'}">${d<=0?'':'+'}${d.toFixed(1)}</span>`;}
+    return`<div class="wl-i"><span class="wl-d">${e.d.slice(5)}</span><span class="wl-v">${e.w.toFixed(1)}kg</span>${dh}</div>`;
+  }).join('');
+}
+const wl=getWL();if(wl.length){updWt(wl[0].w)}else{
+  document.getElementById('wtRm').textContent='体重を記録してスタート！';
+  document.getElementById('wtPc').textContent='—';
+  document.getElementById('wtBar').style.width='0%';
+}
+renWL();
+
+// Toggle
+function togCk(el){el.classList.toggle('done');const n=el.parentElement.querySelector('.ex-n');if(n)n.classList.toggle('x');
+  const dn=document.querySelectorAll('#trExs .ck.done').length;const d=document.getElementById('exDn');if(d)d.textContent=dn;}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  t.classList.add('on');document.getElementById('s-'+t.dataset.s).classList.add('on');
+})});
+document.getElementById('wtInp').addEventListener('keypress',e=>{if(e.key==='Enter')recW()});
+
+// Shopping list
+const DEFAULT_SHOP=[
+  {id:1,n:'EZOBOLIC プロテイン',done:false},
+  {id:2,n:'クレアチン',done:false},
+  {id:3,n:'難消化性デキストリン',done:false},
+  {id:4,n:'防風通聖散',done:false},
+  {id:5,n:'ヨガマット',done:false},
+  {id:6,n:'可変式ダンベル 20kg×2',done:false},
+];
+function getShop(){return JSON.parse(localStorage.getItem(K+'sh')||'null')||DEFAULT_SHOP}
+function setShop(l){localStorage.setItem(K+'sh',JSON.stringify(l))}
+function addShop(){
+  const inp=document.getElementById('shopInp');const t=inp.value.trim();if(!t)return;
+  const l=getShop();l.push({id:Date.now(),n:t,done:false});setShop(l);inp.value='';renShop();
+}
+function togShop(id){const l=getShop();const s=l.find(x=>x.id===id);if(s)s.done=!s.done;setShop(l);renShop();}
+function delShop(id){const l=getShop().filter(x=>x.id!==id);setShop(l);renShop();}
+function renShop(){
+  const l=getShop();
+  document.getElementById('shopList').innerHTML=l.map(s=>
+    `<div class="sh"><button class="sh-ck${s.done?' done':''}" onclick="togShop(${s.id})">✓</button><span class="sh-n${s.done?' x':''}">${s.n}</span><button class="sh-del" onclick="delShop(${s.id})">✕</button></div>`
+  ).join('')||'<div style="text-align:center;color:var(--t3);font-size:10px;padding:8px">リストは空です</div>';
+}
+renShop();
+document.getElementById('shopInp').addEventListener('keypress',e=>{if(e.key==='Enter')addShop()});
+
+// Initial render
+render();
+setInterval(()=>{if(isToday(viewDate))render()},60000);
+</script>
+</body>
+</html>

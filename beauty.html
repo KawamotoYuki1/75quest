@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>75Quest — Beauty Tips</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#faf8f5;--card:#fff;--border:#e8e4de;--acc:#e8937a;--acc2:#c46b8a;--dark:#2a2a3a;--t2:#888;--t3:#bbb}
+body{background:var(--bg);color:var(--dark);font-family:'Zen Maru Gothic',sans-serif;min-height:100vh}
+.app{max-width:460px;margin:0 auto;padding:16px}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.hdr{display:flex;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.hdr a{font-size:20px;text-decoration:none}
+.hdr-title{font-size:18px;font-weight:900}
+.hdr-sub{font-size:11px;color:var(--t2)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.03)}
+.card-t{font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+.item{padding:12px 0;border-bottom:1px solid #f0ece8}
+.item:last-child{border:none}
+.item-h{display:flex;justify-content:space-between;align-items:center}
+.item-n{font-size:14px;font-weight:700}
+.item-tag{font-size:10px;padding:2px 8px;border-radius:8px;background:rgba(232,147,122,.12);color:var(--acc)}
+.item-d{font-size:12px;color:var(--t2);margin-top:4px;line-height:1.6}
+.item-row{display:flex;gap:16px;margin-top:6px;font-size:11px;color:var(--t2)}
+.item-row span{display:flex;align-items:center;gap:3px}
+
+.link-list{display:flex;flex-direction:column;gap:6px}
+.link-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border-radius:10px;font-size:13px}
+.link-icon{font-size:18px;min-width:28px;text-align:center}
+.link-info{flex:1}
+.link-name{font-weight:500}.link-desc{font-size:10px;color:var(--t2);margin-top:1px}
+
+.timeline{padding-left:24px;position:relative}
+.timeline::before{content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:linear-gradient(180deg,var(--acc),var(--acc2))}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-dot{position:absolute;left:-20px;top:4px;width:12px;height:12px;border-radius:50%;border:2px solid var(--acc);background:var(--card)}
+.tl-item.done .tl-dot{background:var(--acc)}
+.tl-month{font-size:10px;color:var(--acc);font-weight:700}
+.tl-title{font-size:13px;font-weight:500;margin-top:2px}
+.tl-cost{font-size:11px;color:var(--t2);margin-top:1px}
+
+.suppl{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0ece8}
+.suppl:last-child{border:none}
+.suppl-icon{font-size:18px;min-width:28px;text-align:center}
+.suppl-n{font-size:13px;font-weight:500;flex:1}
+.suppl-cost{font-size:11px;color:var(--t2)}
+.suppl-star{font-size:11px;color:var(--acc)}
+
+footer{text-align:center;padding:24px 0;font-size:10px;color:var(--t3)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <a href="index.html">←</a>
+    <div><div class="hdr-title">✨ Beauty & Wellness Tips</div><div class="hdr-sub">75Quest — かわちの美容まとめ</div></div>
+  </header>
+
+  <!-- サプリ・医療サポート -->
+  <div class="card">
+    <div class="card-t">💊 サプリ・医療サポート</div>
+    <div class="suppl"><div class="suppl-icon">🥤</div><div class="suppl-n">EZOBOLIC プロテイン<br><span style="font-size:10px;color:var(--t2);font-weight:400">1食25.2g P / WPIタイプ推奨</span></div><div class="suppl-cost">¥4,450/kg</div></div>
+    <div class="suppl"><div class="suppl-icon">💪</div><div class="suppl-n">クレアチン<br><span style="font-size:10px;color:var(--t2);font-weight:400">毎日5g / 筋力UP</span></div><div class="suppl-cost">¥1,000〜</div></div>
+    <div class="suppl"><div class="suppl-icon">🧪</div><div class="suppl-n">難消化性デキストリン<br><span style="font-size:10px;color:var(--t2);font-weight:400">食前に水に溶かす / トクホ認定</span></div><div class="suppl-star">★★★★★</div><div class="suppl-cost">¥500〜</div></div>
+    <div class="suppl"><div class="suppl-icon">🍵</div><div class="suppl-n">防風通聖散（漢方）<br><span style="font-size:10px;color:var(--t2);font-weight:400">内臓脂肪型に / 処方で保険適用</span></div><div class="suppl-star">★★★★</div><div class="suppl-cost">¥1,000〜</div></div>
+    <div class="suppl"><div class="suppl-icon">☕</div><div class="suppl-n">カフェイン（コーヒー）<br><span style="font-size:10px;color:var(--t2);font-weight:400">運動30分前 / 代謝3〜11%UP</span></div><div class="suppl-star">★★★★★</div><div class="suppl-cost">タダ</div></div>
+    <div class="suppl"><div class="suppl-icon">💊</div><div class="suppl-n">アライ（オルリスタット60mg）<br><span style="font-size:10px;color:var(--t2);font-weight:400">薬局で買える / 脂肪吸収30%カット</span></div><div class="suppl-star">★★★★</div><div class="suppl-cost">¥5,000〜</div></div>
+    <div class="suppl"><div class="suppl-icon">🔥</div><div class="suppl-n">L-カルニチン<br><span style="font-size:10px;color:var(--t2);font-weight:400">運動前 / 脂肪燃焼ブースター</span></div><div class="suppl-star">★★★★</div><div class="suppl-cost">¥1,000〜</div></div>
+    <div class="suppl"><div class="suppl-icon">🥥</div><div class="suppl-n">MCTオイル<br><span style="font-size:10px;color:var(--t2);font-weight:400">コーヒーに入れる / ケトン体生成促進</span></div><div class="suppl-star">★★★</div><div class="suppl-cost">¥1,500〜</div></div>
+  </div>
+
+  <!-- GLP-1（検討中）-->
+  <div class="card">
+    <div class="card-t">⚠️ GLP-1（マンジャロ）— 検討中</div>
+    <div style="font-size:12px;line-height:1.8;color:var(--t2)">
+      効果: 体重15〜20%減（93→74〜79kg相当）<br>
+      費用: 月3〜5万円 / オンライン処方可<br><br>
+      <span style="color:var(--acc)">⚠ リスク:</span> 中止者82.5%リバウンド / 筋肉25〜39%減少 / 膵炎リスク / 訴訟3,363件 / 日本では適応外<br>
+      <a href="../notes/mounjaro-risk-research-2026-03-22.md">→ 詳細リスク調査を見る</a>
+    </div>
+  </div>
+
+  <!-- 肌質改善プラン -->
+  <div class="card">
+    <div class="card-t">✨ 肌質改善プラン</div>
+    <div class="timeline">
+      <div class="tl-item done"><div class="tl-dot"></div><div class="tl-month">済</div><div class="tl-title">ヒゲ脱毛 1回目</div><div class="tl-cost">量は減った → あと4-5回で90%以上減</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">Month 1</div><div class="tl-title">ダーマペン4（毛穴・ニキビ跡・肌質）</div><div class="tl-cost">2〜4万円/回 — 赤み2-3日</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">Month 2</div><div class="tl-title">ピコレーザー（シミ・くすみ・トーンUP）</div><div class="tl-cost">1〜3万円/回 — DTほぼなし</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-month">Month 3-5</div><div class="tl-title">ダーマペン+ピコレーザー交互</div><div class="tl-cost">5ヶ月で肌質が劇的に変わる（総額10-20万）</div></div>
+    </div>
+  </div>
+
+  <!-- 歪み矯正 -->
+  <div class="card">
+    <div class="card-t">💎 歪み矯正（プチ整形）</div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">エラボトックス</span><span class="item-tag">人気No.2</span></div>
+      <div class="item-d">小顔効果。ダウンタイムなし。効果4〜6ヶ月持続。</div>
+      <div class="item-row"><span>💰 3〜6万円</span><span>⏱ DTなし</span><span>🔄 4-6ヶ月</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">ヒアルロン酸（顎）</span><span class="item-tag">Eライン</span></div>
+      <div class="item-d">顎を出してEライン形成。横顔の印象が変わる。</div>
+      <div class="item-row"><span>💰 5〜10万円</span><span>⏱ 腫れ1-2日</span><span>🔄 1-2年</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">ヒアルロン酸（鼻筋）</span></div>
+      <div class="item-d">鼻を高くする。メスなし、15分程度の施術。</div>
+      <div class="item-row"><span>💰 5〜10万円</span><span>⏱ 腫れ1-2日</span><span>🔄 1-2年</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">糸リフト（ミントリフト）</span><span class="item-tag">本格派</span></div>
+      <div class="item-d">たるみ引き上げ、輪郭整え。やや本格的。</div>
+      <div class="item-row"><span>💰 15〜30万円</span><span>⏱ 腫れ1週間</span><span>🔄 1-2年</span></div>
+    </div>
+  </div>
+
+  <!-- クリニックリンク -->
+  <div class="card">
+    <div class="card-t">🏥 クリニックリンク（東京）</div>
+    <div class="link-list">
+      <a href="https://gorilla.clinic/" target="_blank" class="link-item"><div class="link-icon">🦍</div><div class="link-info"><div class="link-name">ゴリラクリニック</div><div class="link-desc">メンズ専門 — 脱毛+肌+ダイエット</div></div></a>
+      <a href="https://mens-clara.clinic/" target="_blank" class="link-item"><div class="link-icon">💎</div><div class="link-info"><div class="link-name">メンズクララクリニック</div><div class="link-desc">銀座 — メンズ美容医療専門</div></div></a>
+      <a href="https://www.s-b-c.net/" target="_blank" class="link-item"><div class="link-icon">🌊</div><div class="link-info"><div class="link-name">湘南美容クリニック</div><div class="link-desc">全国 — 豊富な施術、コスパ◎</div></div></a>
+      <a href="https://www.kyoritsu-biyo.com/" target="_blank" class="link-item"><div class="link-icon">🏛</div><div class="link-info"><div class="link-name">共立美容外科</div><div class="link-desc">全国 — 骨格系に強い</div></div></a>
+      <a href="https://aoki-tsuyoshi.com/" target="_blank" class="link-item"><div class="link-icon">⭐</div><div class="link-info"><div class="link-name">TCB東京中央美容外科</div><div class="link-desc">全国 — プチ整形コスパ◎</div></div></a>
+      <a href="https://reginaclinic.jp/homme/" target="_blank" class="link-item"><div class="link-icon">👔</div><div class="link-info"><div class="link-name">レジーナクリニックオム</div><div class="link-desc">脱毛特化 — ヒゲ3回9,900円〜</div></div></a>
+    </div>
+  </div>
+
+  <!-- 注意 -->
+  <div class="card" style="background:#fef3f0;border-color:#f0d0c8">
+    <div class="card-t">⚠️ 使わない方がいいもの</div>
+    <div style="font-size:12px;color:var(--t2);line-height:1.8">
+      ❌ ガルシニア — 男性に精巣障害リスク（厚労省注意喚起）<br>
+      ❌ サノレックス — 依存性高い、最長3ヶ月制限<br>
+      ❌ 酵素サプリ — ダイエット効果のエビデンスなし<br>
+      ❌ α-リポ酸 — 低血糖リスク、効果限定的
+    </div>
+  </div>
+
+  <!-- AGA -->
+  <div class="card">
+    <div class="card-t">💇 AGAケア（薄毛対策）</div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">フィナステリド（内服）</span><span class="item-tag">基本</span></div>
+      <div class="item-d">AGAの進行を止める第一選択薬。抜け毛抑制。</div>
+      <div class="item-row"><span>💰 月3,000〜6,000円</span><span>📋 処方必要</span><span>⏱ 効果3〜6ヶ月</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">ミノキシジル（外用/内服）</span><span class="item-tag">発毛</span></div>
+      <div class="item-d">発毛を促進。外用は市販OK、内服は処方。フィナと併用が効果的。</div>
+      <div class="item-row"><span>💰 外用 月2,000〜5,000円</span><span>💰 内服 月5,000〜10,000円</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">デュタステリド（ザガーロ）</span></div>
+      <div class="item-d">フィナステリドより強力。効果が出にくい場合のステップアップ。</div>
+      <div class="item-row"><span>💰 月8,000〜12,000円</span><span>📋 処方必要</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">メソセラピー（注入治療）</span></div>
+      <div class="item-d">成長因子を頭皮に直接注入。内服との併用で効果UP。</div>
+      <div class="item-row"><span>💰 1回 2〜8万円</span><span>🔄 月1回×6〜12回</span></div>
+    </div>
+    <div style="margin-top:10px">
+      <div style="font-size:11px;font-weight:700;margin-bottom:6px">AGAクリニック</div>
+      <div class="link-list">
+        <a href="https://www.agaskin.net/" target="_blank" class="link-item"><div class="link-icon">🏥</div><div class="link-info"><div class="link-name">AGAスキンクリニック</div><div class="link-desc">全国55院 — AGA専門最大手</div></div></a>
+        <a href="https://www.clinicfor.life/" target="_blank" class="link-item"><div class="link-icon">📱</div><div class="link-info"><div class="link-name">クリニックフォア</div><div class="link-desc">オンライン診療 — 月1,760円〜</div></div></a>
+        <a href="https://dmmclinic.com/" target="_blank" class="link-item"><div class="link-icon">📱</div><div class="link-info"><div class="link-name">DMMオンラインクリニック</div><div class="link-desc">オンライン — フィナ月3,420円〜</div></div></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ICL -->
+  <div class="card">
+    <div class="card-t">👁 ICL（眼内コンタクトレンズ）</div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">ICL手術</span><span class="item-tag">視力矯正</span></div>
+      <div class="item-d">角膜を削らずにレンズを眼内に挿入。レーシックより安全性が高く、可逆的（レンズ除去可能）。</div>
+      <div class="item-row"><span>💰 両目 45〜75万円</span><span>⏱ 手術15分</span><span>🔄 半永久</span></div>
+    </div>
+    <div class="item">
+      <div class="item-h"><span class="item-n">ICL vs レーシック</span></div>
+      <div class="item-d" style="line-height:1.8">
+        ✅ ICL: 角膜を削らない、可逆的、ドライアイになりにくい、強度近視OK<br>
+        ⚠ ICL: 費用が高い（レーシックの2倍）、白内障リスク（稀）<br>
+        ✅ レーシック: 安い（両目20〜30万）<br>
+        ⚠ レーシック: 角膜を削る（不可逆）、ドライアイリスク、強度近視不可
+      </div>
+    </div>
+    <div style="margin-top:10px">
+      <div style="font-size:11px;font-weight:700;margin-bottom:6px">ICLクリニック</div>
+      <div class="link-list">
+        <a href="https://www.sbc-lasik.net/" target="_blank" class="link-item"><div class="link-icon">🌊</div><div class="link-info"><div class="link-name">湘南美容クリニック レーシック</div><div class="link-desc">ICL 両目46万円〜</div></div></a>
+        <a href="https://www.shinagawa-lasik.com/" target="_blank" class="link-item"><div class="link-icon">👁</div><div class="link-info"><div class="link-name">品川近視クリニック</div><div class="link-desc">ICL 両目46万円〜 — 症例数最多</div></div></a>
+        <a href="https://www.sannoclc.or.jp/" target="_blank" class="link-item"><div class="link-icon">🏥</div><div class="link-info"><div class="link-name">山王病院 アイセンター</div><div class="link-desc">大学病院レベルの安心感</div></div></a>
+      </div>
+    </div>
+  </div>
+
+  <footer>75Quest — Beauty & Wellness Tips</footer>
+</div>
+</body>
+</html>
