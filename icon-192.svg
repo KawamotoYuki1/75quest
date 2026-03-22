@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0b12"/>
+      <stop offset="100%" stop-color="#1a1a28"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffe156"/>
+      <stop offset="100%" stop-color="#ffaa40"/>
+    </linearGradient>
+  </defs>
+  <rect width="192" height="192" rx="40" fill="url(#bg)"/>
+  <text x="96" y="78" text-anchor="middle" font-family="Arial Black, sans-serif" font-weight="900" font-size="48" fill="url(#accent)">75</text>
+  <text x="96" y="120" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="24" fill="#8080a0" letter-spacing="4">QUEST</text>
+  <rect x="36" y="138" width="120" height="4" rx="2" fill="#222238"/>
+  <rect x="36" y="138" width="40" height="4" rx="2" fill="#00ff88"/>
+</svg>
