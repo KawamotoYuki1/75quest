@@ -324,6 +324,11 @@ checkAuth();
 
 document.getElementById('loginPass').addEventListener('keypress',e=>{if(e.key==='Enter')doLogin()});
 
+// Global functions (called from HTML onclick)
+let viewDate=new Date();
+function navDay(n){viewDate.setDate(viewDate.getDate()+n);render()}
+function goToday(){viewDate=new Date();render()}
+
 function initApp(){
 const K='75q_';
 const dayN=['日','月','火','水','木','金','土'];
@@ -376,7 +381,6 @@ const DEFAULT_EVENTS=[
 ];
 
 // State
-let viewDate=new Date();
 let events=JSON.parse(localStorage.getItem(K+'ev')||'null')||DEFAULT_EVENTS;
 function saveEv(){localStorage.setItem(K+'ev',JSON.stringify(events))}
 function fmtD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -384,10 +388,6 @@ function isToday(d){const t=new Date();return fmtD(d)===fmtD(t)}
 function getEvFor(dateStr){
   return events.filter(e=>dateStr>=e.start&&dateStr<=e.end);
 }
-
-// Date navigation
-function navDay(n){viewDate.setDate(viewDate.getDate()+n);render()}
-function goToday(){viewDate=new Date();render()}
 
 // Render everything
 function render(){
@@ -596,6 +596,11 @@ function renShop(){
 }
 renShop();
 document.getElementById('shopInp').addEventListener('keypress',e=>{if(e.key==='Enter')addShop()});
+
+// Expose functions to global scope for onclick handlers
+window.recW=recW;window.togCk=togCk;window.addEv=addEv;window.delEv=delEv;
+window.addShop=addShop;window.togShop=togShop;window.delShop=delShop;
+window.updW2=updW2;window.render=render;
 
 // Initial render
 render();
