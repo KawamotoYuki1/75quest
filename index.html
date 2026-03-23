@@ -649,24 +649,30 @@ window.updW2=updW2;window.render=render;
 render();
 setInterval(()=>{if(isToday(viewDate))render()},60000);
 // Pull to refresh
-let ptrStart=0,ptrActive=false;
+let ptrStart=0,ptrPulling=false;
 const ptrEl=document.getElementById('ptr');
-document.addEventListener('touchstart',e=>{if(window.scrollY===0){ptrStart=e.touches[0].clientY;ptrActive=true}});
+document.addEventListener('touchstart',e=>{
+  if(window.scrollY<=0){ptrStart=e.touches[0].clientY;ptrPulling=true;}
+  else{ptrPulling=false;}
+},{passive:true});
 document.addEventListener('touchmove',e=>{
-  if(!ptrActive)return;
+  if(!ptrPulling)return;
   const diff=e.touches[0].clientY-ptrStart;
-  if(diff>60){ptrEl.classList.add('pulling');ptrEl.textContent='↑ 離して更新';}
-  else if(diff>0){ptrEl.classList.add('pulling');ptrEl.textContent='↓ 引っ張って更新';}
-  else{ptrEl.classList.remove('pulling');}
-});
+  if(diff>60&&window.scrollY<=0){ptrEl.style.height='50px';ptrEl.textContent='↑ 離して更新';}
+  else if(diff>10&&window.scrollY<=0){ptrEl.style.height='50px';ptrEl.textContent='↓ 引っ張って更新';}
+  else{ptrEl.style.height='0';}
+},{passive:true});
 document.addEventListener('touchend',async()=>{
-  if(ptrEl.classList.contains('pulling')&&ptrEl.textContent.includes('離して')){
-    ptrEl.textContent='更新中...';ptrEl.classList.add('refreshing');
-    await render();await loadWeight();await renShop();await loadWater();
-    ptrEl.classList.remove('pulling','refreshing');ptrEl.textContent='↓ 引っ張って更新';
-  }else{ptrEl.classList.remove('pulling');}
-  ptrActive=false;
-});
+  if(!ptrPulling){return;}
+  if(ptrEl.textContent.includes('離して')){
+    ptrEl.textContent='更新中...';
+    try{await render();await loadWeight();await renShop();}catch(e){}
+    setTimeout(()=>{ptrEl.style.height='0';ptrEl.textContent='';},500);
+  }else{
+    ptrEl.style.height='0';ptrEl.textContent='';
+  }
+  ptrPulling=false;
+},{passive:true});
 
 } // end initApp
 </script>
