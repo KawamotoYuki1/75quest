@@ -410,59 +410,74 @@ async function render(){
     const wdw=wd.getDay();const wp=TRAIN[wdw];
     const wds=fmtD(wd);const isSel=i===0;
     const wev=getEvFor(wds);const hasEv=wev.length>0;
-    const icons=[];
-    if(wp.fast)icons.push('🕐');
-    if(wp.type==='train')icons.push('💪');else icons.push('🧘');
-    if(hasEv)icons.push(wev[0].icon);
 
+    const icon=wp.type==='train'?'💪':'🧘';
     let tags='';
-    if(wp.fast)tags+=`<span class="day-tg tg-fs">断食</span>`;
     if(wp.type==='train')tags+=`<span class="day-tg tg-tr">筋トレ</span>`;
-    else tags+=`<span class="day-tg tg-rs">休み</span>`;
-    if(hasEv)tags+=`<span class="day-tg tg-ev">${wev[0].name.slice(0,3)}</span>`;
+    else tags+=`<span class="day-tg tg-rs">自由</span>`;
+    if(wp.fast)tags+=`<span class="day-tg tg-fs">16:8</span>`;
+    if(hasEv)tags+=`<span class="day-tg tg-ev">${wev[0].icon}</span>`;
 
     wh+=`<div class="day${isSel?' sel':''}${hasEv?' has-ev':''}" onclick="viewDate=new Date('${wds}T12:00:00');render()">
       <div class="day-nm">${dayN[wdw]}</div>
       <div class="day-n">${wd.getDate()}</div>
-      <div class="day-ic">${icons.join('')}</div>
+      <div class="day-ic">${icon}${hasEv?' '+wev[0].icon:''}</div>
       ${tags}
     </div>`;
   }
   wk.innerHTML=wh;
 
-  // Fasting (only on training days)
+  // Fasting display
   const fa=document.getElementById('fastArea');
   if(plan.fast&&today){
     const tot=hh*60+new Date().getMinutes();const s=12*60,e=20*60;
-    let rem,pct,st,lb,ds;
-    if(tot>=s&&tot<e){rem=e-tot;pct=(tot-s)/(e-s);st='🟢 食事OK';lb='終了まで';ds='食べてOK！Pを意識';}
-    else{const ft=16*60;let el=tot>=e?tot-e:tot+(24*60-e);rem=ft-el;if(rem<0)rem=0;pct=el/ft;st='🔴 断食中';lb='食事まで';ds='水・お茶・ブラックコーヒーのみ';}
+    let rem,pct,st,lb,fdesc;
+    if(tot>=s&&tot<e){rem=e-tot;pct=(tot-s)/(e-s);st='🟢 食事OK';lb='終了まで';fdesc='食べてOK！タンパク質を意識';}
+    else if(tot<s){rem=s-tot;pct=0;st='🔴 断食中';lb='食事まで';fdesc='水・お茶・ブラックコーヒーのみ';}
+    else{rem=0;pct=1;st='🔴 断食中';lb='明日12時まで';fdesc='今日の食事ウィンドウは終了';}
     const rh=Math.floor(rem/60),rm=rem%60;
-    fa.innerHTML=`<div class="fst"><div class="fst-ring"><svg width="48" height="48" viewBox="0 0 48 48"><circle class="trk" cx="24" cy="24" r="20"/><circle class="fl" cx="24" cy="24" r="20" stroke-dasharray="126" stroke-dashoffset="${126*(1-Math.min(pct,1))}"/></svg><div class="fst-md"><div class="fst-t">${String(rh).padStart(2,'0')}:${String(rm).padStart(2,'0')}</div><div class="fst-l">${lb}</div></div></div><div class="fst-info"><div class="fst-s" style="color:${tot>=s&&tot<e?'var(--g)':'var(--p)'}">${st}</div><div class="fst-ds">${ds}</div></div></div>`;
+    fa.innerHTML=`<div class="fst"><div class="fst-ring"><svg width="48" height="48" viewBox="0 0 48 48"><circle class="trk" cx="24" cy="24" r="20"/><circle class="fl" cx="24" cy="24" r="20" stroke-dasharray="126" stroke-dashoffset="${126*(1-Math.min(pct,1))}"/></svg><div class="fst-md"><div class="fst-t">${String(rh).padStart(2,'0')}:${String(rm).padStart(2,'0')}</div><div class="fst-l">${lb}</div></div></div><div class="fst-info"><div class="fst-s" style="color:${tot>=s&&tot<e?'var(--g)':'var(--p)'}">${st}</div><div class="fst-ds">${fdesc}</div></div></div>`;
   }else if(plan.fast&&!today){
-    fa.innerHTML=`<div class="fst"><div style="font-size:20px;min-width:48px;text-align:center">🕐</div><div class="fst-info"><div class="fst-s">16:8 断食日</div><div class="fst-ds">12:00〜20:00 が食事ウィンドウ</div></div></div>`;
+    fa.innerHTML=`<div class="fst"><div style="font-size:20px;min-width:48px;text-align:center">⏰</div><div class="fst-info"><div class="fst-s">16:8 断食日</div><div class="fst-ds">12:00〜20:00のみ食事OK</div></div></div>`;
   }else{
-    fa.innerHTML=`<div class="fst"><div style="font-size:20px;min-width:48px;text-align:center">🍽</div><div class="fst-info"><div class="fst-s" style="color:var(--c)">自由食の日</div><div class="fst-ds">断食なし — 好きな時間に食事OK（カロリーは意識）</div></div></div>`;
+    fa.innerHTML=`<div class="fst"><div style="font-size:20px;min-width:48px;text-align:center">🍽</div><div class="fst-info"><div class="fst-s" style="color:var(--c)">自由食の日</div><div class="fst-ds">好きな時間に食事OK（2,000kcal目安）</div></div></div>`;
   }
 
   // Today's schedule
   const evs=getEvFor(ds);
   const items=[];
   if(evs.length)evs.forEach(e=>items.push({t:'EVENT',i:e.icon,tx:e.name,cls:'ev-hi'}));
+
+  // 断食日のスケジュール
   if(plan.fast){
-    if(today&&hh<12)items.push({t:'〜12',i:'🔴',tx:'断食中（水・お茶のみ）',cls:hh<12?'now':''});
-    items.push({t:'食前',i:'🍵',tx:'防風通聖散 + 難消化性デキストリン',cls:''});
-    items.push({t:'12:00',i:'🟢',tx:'食事開始！タンパク質優先',cls:today&&hh>=12&&hh<13?'now':''});
-  }
-  if(plan.type==='train'){
-    items.push({t:'運動前',i:'☕',tx:'コーヒー飲む',cls:''});
-    items.push({t:'運動',i:'💪',tx:`${plan.label}（20分）`,cls:''});
-    items.push({t:'運動後',i:'🥤',tx:'EZOBOLIC + クレアチン',cls:''});
+    items.push({t:'起床',i:'🍵',tx:'防風通聖散を飲む',cls:''});
+    if(today&&hh<12)items.push({t:'〜12:00',i:'🔴',tx:'断食中（水・お茶・ブラックコーヒーのみ）',cls:'now'});
+    items.push({t:'11:50',i:'🧪',tx:'難消化性デキストリン + 防風通聖散',cls:''});
+    items.push({t:'12:00',i:'🟢',tx:'食事スタート！',cls:today&&hh>=12&&hh<13?'now':''});
   }else{
-    items.push({t:'推奨',i:'🚶',tx:'散歩30分（有酸素）',cls:''});
-    items.push({t:'任意',i:'🥤',tx:'EZOBOLIC プロテイン',cls:''});
+    // 休息日
+    items.push({t:'起床',i:'🍵',tx:'防風通聖散を飲む',cls:''});
+    items.push({t:'朝食',i:'🍽',tx:'自由に食べてOK',cls:''});
   }
-  if(plan.fast)items.push({t:'20:00',i:'🔴',tx:'食事終了 → 断食スタート',cls:today&&hh>=20?'now':''});
+
+  // トレーニング
+  if(plan.type==='train'){
+    items.push({t:'運動前',i:'☕',tx:'コーヒー（30分前）',cls:''});
+    items.push({t:'運動',i:'💪',tx:`${plan.label}（20分）`,cls:''});
+    items.push({t:'運動後',i:'🥤',tx:'EZOBOLIC プロテイン + クレアチン',cls:''});
+  }else{
+    items.push({t:'推奨',i:'🚶',tx:'散歩30分',cls:''});
+    items.push({t:'任意',i:'🥤',tx:'EZOBOLIC プロテイン + クレアチン',cls:''});
+  }
+
+  // 夕食・断食終了
+  if(plan.fast){
+    items.push({t:'19:30',i:'🧪',tx:'難消化性デキストリン + 防風通聖散',cls:''});
+    items.push({t:'20:00',i:'🔴',tx:'食事終了 → 断食スタート',cls:today&&hh>=20?'now':''});
+  }else{
+    items.push({t:'食前',i:'🧪',tx:'難消化性デキストリン + 防風通聖散',cls:''});
+    items.push({t:'夕食',i:'🍽',tx:'20:00までに食べるのが理想',cls:''});
+  }
 
   document.getElementById('tdTitle').textContent=today?'📋 今日やること':`📋 ${d.getMonth()+1}/${d.getDate()} のスケジュール`;
   document.getElementById('tdSch').innerHTML=items.map(s=>`<div class="sc ${s.cls}"><span class="sc-t">${s.t}</span><span class="sc-i">${s.i}</span><span class="sc-tx">${s.tx}</span></div>`).join('');
@@ -500,10 +515,12 @@ async function render(){
     return`<div class="ml"><div class="ml-i" style="background:${m.bg}">${m.icon}</div><div style="flex:1"><div class="ml-n">${m.name}</div><div class="ml-dt">${note}</div></div><div class="ml-k">${kcal}</div></div>`;
   }).join('');
 
-  // Calorie bar
+  // Calorie & Protein bar
   const calPct=Math.min(100,totalCal/2000*100);
   document.querySelector('.cal-v').textContent=totalCal;
   document.getElementById('calBar').style.width=calPct+'%';
+  const protEl=document.getElementById('protInfo');
+  if(protEl)protEl.textContent=`P: ${totalP.toFixed(0)}g / 150g`;
 
   // Events list
   renderEvents();

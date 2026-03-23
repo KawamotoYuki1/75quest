@@ -103,12 +103,37 @@ Claude Codeの会話でメニュー変更 → アプリのindex.htmlを更新。
 | 買い物リスト | 購入が必要なもの |
 | Phase変更 | トレーニング強度を上げる |
 
-## TODO
-- [ ] GitHub Pagesにデプロイ（スマホからいつでもアクセス）
-- [ ] LINE通知にイベントリマインド追加
+## 完了済み
+- [x] GitHub Pagesにデプロイ（https://kawamotoyuki1.github.io/75quest/）
+- [x] LINE bot構築（AI会話コーチモード）
+- [x] Renderデプロイ（https://seven5quest.onrender.com）
+- [x] Supabase DB 9テーブル + RLS
+- [x] ログイン機能（Supabase Auth）
+- [x] PWA対応（ホーム画面追加可能）
+- [x] UptimeRobot設定（サーバースリープ防止）
+- [x] フロントアプリ → DB接続
+- [x] 食事記録（テキスト+画像AI解析）
+- [x] 自動アラート5つ（朝/サプリ/トレ/食事/まとめ）
+
+## TODO（個人利用）
 - [ ] Eufy P2 Pro → Apple ヘルスケア連携ON
 - [ ] 防風通聖散を薬局で購入
 - [ ] 難消化性デキストリン購入
 - [ ] クレアチン購入
 - [ ] ヨガマット購入
 - [ ] 美容クリニック カウンセリング予約
+- [ ] アプリの断食ロジック統一（トレ日=12:00〜20:00のみ）
+- [ ] アプリのデザイン改善
+
+## TODO（商品化 → 次のセッションで）
+- [ ] マルチユーザー対応（user_id紐付け）
+- [ ] オンボーディングフロー（LINE登録→目標設定→体験開始）
+- [ ] Stripe課金連携（Free/Light/Standard/VIP）
+- [ ] LP作成（サービス紹介+LINE登録CTA）
+- [ ] SNSコンテンツテンプレート作成
+- [ ] 利用規約・プライバシーポリシー
+- [ ] 特定商取引法表記
+- [ ] SNSアカウント作成（TikTok + Instagram + X）
+
+## 事業計画
+→ `business-plan.md` に全体計画を記載
