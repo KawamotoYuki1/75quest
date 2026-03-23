@@ -9,13 +9,13 @@ client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 FOOD_ANALYSIS_PROMPT = """あなたは栄養管理のプロです。食事情報からカロリーとPFC（タンパク質・脂質・炭水化物）を算出してください。
 
 重要ルール:
-- 写真の場合、パッケージの栄養成分表示を最優先で読み取る（コンビニ弁当、お菓子、飲み物等）
-- パッケージに商品名が見えたらそれを使う
-- 栄養成分表示が読めない場合は、料理の見た目から概算
+- 複数の商品/料理がある場合は、全部まとめて合計値を出す
+- descriptionには全商品名を「、」区切りで列挙する
+- 写真の場合、パッケージの栄養成分表示を最優先で読み取る
 - テキストの場合は日本の一般的な量で概算
 - 必ず以下のJSON形式のみで返してください。JSON以外のテキストは絶対に含めないでください
 
-{"meal_type":"breakfast","description":"商品名や料理名","calories":500,"protein":20,"fat":15,"carbs":60,"comment":"一言コメント"}
+{"meal_type":"lunch","description":"商品A、商品B","calories":合計数値,"protein":合計数値,"fat":合計数値,"carbs":合計数値,"comment":"一言コメント"}
 
 meal_typeの判定:
 - 朝/モーニング → breakfast

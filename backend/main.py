@@ -3,7 +3,7 @@ import json
 import hmac
 import hashlib
 import base64
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from contextlib import asynccontextmanager
 from config import JST
 
@@ -94,11 +94,20 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
         import re
         correction = re.sub(r'^(違う|訂正)[、，\s]*', '', t).strip()
         if correction:
-            # 直前の食事記録を削除
+            # 直近5分以内の食事記録をまとめて削除
             today = datetime.now(JST).date().isoformat()
-            last = db.get_db().table("meals").select("id").eq("date", today).order("created_at", desc=True).limit(1).execute()
-            if last.data:
-                db.get_db().table("meals").delete().eq("id", last.data[0]["id"]).execute()
+            five_min_ago = (datetime.now(JST) - timedelta(minutes=5)).isoformat()
+            recent = db.get_db().table("meals").select("id").eq("date", today).gte("created_at", five_min_ago).execute()
+            if recent.data:
+                for r in recent.data:
+                    db.get_db().table("meals").delete().eq("id", r["id"]).execute()
+                deleted = len(recent.data)
+            else:
+                # 5分以内になければ直近1件を削除
+                last = db.get_db().table("meals").select("id").eq("date", today).order("created_at", desc=True).limit(1).execute()
+                if last.data:
+                    db.get_db().table("meals").delete().eq("id", last.data[0]["id"]).execute()
+                deleted = 1
             # 正しい内容で再解析
             try:
                 result = ai.analyze_food_text(correction)
@@ -106,7 +115,7 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
                 today_meals = db.get_today_meals()
                 total_cal = sum(m.get("calories") or 0 for m in today_meals)
                 total_p = sum(m.get("protein") or 0 for m in today_meals)
-                await reply_line_message(reply_token, f"✏️ 訂正しました！\n{result['description']}\n→ {result.get('calories')}kcal（P{result.get('protein')}g）\n\n📊 合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal\nタンパク質: {total_p:.0f}g / {DAILY_PROTEIN_TARGET}g")
+                await reply_line_message(reply_token, f"✏️ 訂正しました！（{deleted}件削除→再登録）\n{result['description']}\n→ {result.get('calories')}kcal（P{result.get('protein')}g）\n\n📊 合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal\nタンパク質: {total_p:.0f}g / {DAILY_PROTEIN_TARGET}g")
             except Exception as e:
                 await reply_line_message(reply_token, f"✏️ 訂正エラー: {str(e)[:100]}")
             return
