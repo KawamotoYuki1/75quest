@@ -89,6 +89,26 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
     """Process text messages"""
     t = text.strip()
 
+    # Correction: "違う、○○" で直前の食事を訂正
+    if t.startswith("違う") or t.startswith("訂正"):
+        correction = t.replace("違う、", "").replace("違う，", "").replace("違う ", "").replace("訂正 ", "").replace("訂正、", "").strip()
+        if correction:
+            # 直前の食事記録を削除
+            today_meals = db.get_today_meals()
+            if today_meals:
+                last_meal = today_meals[-1]
+                db.get_db().table("meals").delete().eq("id", last_meal["id"]).execute()
+            # 正しい内容で再解析
+            try:
+                result = ai.analyze_food_text(correction)
+                db.record_meal(result["meal_type"], result["description"], result.get("calories"), result.get("protein"), result.get("fat"), result.get("carbs"))
+                today_meals = db.get_today_meals()
+                total_cal = sum(m.get("calories") or 0 for m in today_meals)
+                await reply_line_message(reply_token, f"✏️ 訂正しました！\n{result['description']}\n→ {result.get('calories')}kcal\n📊 合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal")
+            except Exception:
+                await reply_line_message(reply_token, f"✏️ 訂正: {correction}\nとして記録しました")
+            return
+
     # Weight
     if t.startswith("体重"):
         try:
@@ -235,7 +255,8 @@ async def handle_image_message(reply_token: str, message_id: str):
         msg += f"📊 今日の合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal\n"
         msg += f"タンパク質: {total_p:.0f}g / {DAILY_PROTEIN_TARGET}g\n"
         msg += f"残り: {remain}kcal\n\n"
-        msg += f"💬 {result.get('comment', 'いい感じ！')}"
+        msg += f"💬 {result.get('comment', 'いい感じ！')}\n\n"
+        msg += f"※間違ってたら「違う、紅生姜天そば」のように送ってね"
 
         await reply_line_message(reply_token, msg)
     except Exception as e:

@@ -52,6 +52,18 @@ def analyze_food_text(text: str) -> dict:
     return extract_json(response.content[0].text)
 
 
+IMAGE_ANALYSIS_PROMPT = """この食事の写真を分析してください。
+
+最優先: パッケージやラベルに書かれた商品名・栄養成分表示（カロリー、たんぱく質、脂質、炭水化物）を読み取る。
+コンビニ（セブンイレブン、ファミマ、ローソン等）の商品の場合、ラベルの文字を正確に読む。
+複数の商品がある場合、全商品を合算する。
+栄養成分表示が読めない場合は、見た目と商品名から概算する。
+
+必ず以下のJSON形式のみで返してください。JSON以外のテキストは絶対に含めないでください。
+
+{"meal_type":"lunch","description":"全商品名を列挙","calories":合計数値,"protein":合計数値,"fat":合計数値,"carbs":合計数値,"comment":"一言コメント"}
+"""
+
 def analyze_food_image_from_base64(b64_data: str, media_type: str = "image/jpeg") -> dict:
     """Base64画像から食事を解析（Sonnetで高精度）"""
     response = client.messages.create(
@@ -60,7 +72,7 @@ def analyze_food_image_from_base64(b64_data: str, media_type: str = "image/jpeg"
         messages=[{
             "role": "user",
             "content": [
-                {"type": "text", "text": FOOD_ANALYSIS_PROMPT + "\n\nこの食事の写真を分析してください。パッケージの商品名や栄養成分表示が見えたら必ず読み取ってください。"},
+                {"type": "text", "text": IMAGE_ANALYSIS_PROMPT},
                 {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": b64_data}}
             ]
         }]
