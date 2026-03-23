@@ -58,6 +58,22 @@ def analyze_food_text(text: str) -> dict:
     return extract_json(response.content[0].text)
 
 
+def analyze_food_image_from_base64(b64_data: str, media_type: str = "image/jpeg") -> dict:
+    """Base64画像から食事を解析"""
+    response = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=500,
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "text", "text": FOOD_ANALYSIS_PROMPT + "\n\nこの食事の写真を分析してください。"},
+                {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": b64_data}}
+            ]
+        }]
+    )
+    return extract_json(response.content[0].text)
+
+
 def analyze_food_image(image_url: str) -> dict:
     """画像から食事を解析"""
     # Download image

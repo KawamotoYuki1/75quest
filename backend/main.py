@@ -204,27 +204,13 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
 async def handle_image_message(reply_token: str, message_id: str):
     """Process image messages (food photos)"""
     try:
-        image_url = f"https://api-data.line.me/v2/bot/message/{message_id}/content"
-        # Download image directly for Claude
+        # まず受信確認を返す前に処理
         image_data = await download_line_image(message_id)
         import base64
         b64 = base64.b64encode(image_data).decode("utf-8")
 
-        import anthropic
-        from config import ANTHROPIC_API_KEY
-        aclient = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        response = aclient.messages.create(
-            model="claude-haiku-4-5-20251001",
-            max_tokens=500,
-            messages=[{
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": ai.FOOD_ANALYSIS_PROMPT + "\n\nこの食事の写真を分析してください。"},
-                    {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": b64}}
-                ]
-            }]
-        )
-        result = json.loads(response.content[0].text)
+        # Claude APIで解析
+        result = ai.analyze_food_image_from_base64(b64)
 
         db.record_meal(
             result["meal_type"],
@@ -237,6 +223,7 @@ async def handle_image_message(reply_token: str, message_id: str):
 
         today_meals = db.get_today_meals()
         total_cal = sum(m.get("calories") or 0 for m in today_meals)
+        total_p = sum(m.get("protein") or 0 for m in today_meals)
         remain = DAILY_CALORIE_TARGET - total_cal
 
         meal_names = {"breakfast": "朝食", "lunch": "昼食", "dinner": "夕食", "snack": "間食"}
@@ -246,12 +233,15 @@ async def handle_image_message(reply_token: str, message_id: str):
         msg += f"{result['description']}\n"
         msg += f"→ {result.get('calories', '?')}kcal（P{result.get('protein', '?')}g F{result.get('fat', '?')}g C{result.get('carbs', '?')}g）\n\n"
         msg += f"📊 今日の合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal\n"
+        msg += f"タンパク質: {total_p:.0f}g / {DAILY_PROTEIN_TARGET}g\n"
         msg += f"残り: {remain}kcal\n\n"
         msg += f"💬 {result.get('comment', 'いい感じ！')}"
 
         await reply_line_message(reply_token, msg)
     except Exception as e:
-        await reply_line_message(reply_token, f"📸 写真を受け取りました！解析中にエラーが発生しました: {str(e)[:100]}")
+        import traceback
+        print(f"[ERROR] Image analysis failed: {traceback.format_exc()}")
+        await reply_line_message(reply_token, f"📸 写真の解析に失敗しました\n{str(e)[:150]}\n\nテキストで「昼食 ○○」と送ってみてください")
 
 
 async def send_today_summary(reply_token: str = None):
