@@ -91,22 +91,24 @@ async def handle_text_message(reply_token: str, text: str, user_id: str):
 
     # Correction: "違う、○○" で直前の食事を訂正
     if t.startswith("違う") or t.startswith("訂正"):
-        correction = t.replace("違う、", "").replace("違う，", "").replace("違う ", "").replace("訂正 ", "").replace("訂正、", "").strip()
+        import re
+        correction = re.sub(r'^(違う|訂正)[、，\s]*', '', t).strip()
         if correction:
             # 直前の食事記録を削除
-            today_meals = db.get_today_meals()
-            if today_meals:
-                last_meal = today_meals[-1]
-                db.get_db().table("meals").delete().eq("id", last_meal["id"]).execute()
+            today = datetime.now(JST).date().isoformat()
+            last = db.get_db().table("meals").select("id").eq("date", today).order("created_at", desc=True).limit(1).execute()
+            if last.data:
+                db.get_db().table("meals").delete().eq("id", last.data[0]["id"]).execute()
             # 正しい内容で再解析
             try:
                 result = ai.analyze_food_text(correction)
                 db.record_meal(result["meal_type"], result["description"], result.get("calories"), result.get("protein"), result.get("fat"), result.get("carbs"))
                 today_meals = db.get_today_meals()
                 total_cal = sum(m.get("calories") or 0 for m in today_meals)
-                await reply_line_message(reply_token, f"✏️ 訂正しました！\n{result['description']}\n→ {result.get('calories')}kcal\n📊 合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal")
-            except Exception:
-                await reply_line_message(reply_token, f"✏️ 訂正: {correction}\nとして記録しました")
+                total_p = sum(m.get("protein") or 0 for m in today_meals)
+                await reply_line_message(reply_token, f"✏️ 訂正しました！\n{result['description']}\n→ {result.get('calories')}kcal（P{result.get('protein')}g）\n\n📊 合計: {total_cal} / {DAILY_CALORIE_TARGET}kcal\nタンパク質: {total_p:.0f}g / {DAILY_PROTEIN_TARGET}g")
+            except Exception as e:
+                await reply_line_message(reply_token, f"✏️ 訂正エラー: {str(e)[:100]}")
             return
 
     # Weight
