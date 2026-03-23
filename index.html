@@ -383,7 +383,8 @@ const MEALS=[
 // State - events from DB
 let events=[];
 async function loadEvents(){
-  const{data}=await sb.from('events').select('*').order('start_date');
+  const{data,error}=await sb.from('events').select('*').order('start_date');
+  if(error){console.error('Events load error:',error);return;}
   events=(data||[]).map(e=>({id:e.id,start:e.start_date,end:e.end_date,name:e.name,icon:e.icon||'📋'}));
 }
 function fmtD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
