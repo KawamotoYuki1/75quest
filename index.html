@@ -478,18 +478,24 @@ async function render(){
     document.getElementById('exP').innerHTML=`完了 <b id="exDn">0</b> / ${plan.ex.length}`;
   }else{document.getElementById('trExs').innerHTML='';document.getElementById('exP').textContent='';}
 
-  // Meals from DB
-  const mealTypes={breakfast:'朝食',lunch:'昼食',dinner:'夕食',snack:'間食'};
+  // Meals from DB - group by meal_type, combine multiples
   const{data:dbMeals}=await sb.from('meals').select('*').eq('date',ds);
   const mealData={};
-  (dbMeals||[]).forEach(m=>{mealData[m.meal_type]={desc:m.description,cal:m.calories,p:m.protein,f:m.fat,c:m.carbs}});
+  (dbMeals||[]).forEach(m=>{
+    if(!mealData[m.meal_type]){mealData[m.meal_type]={descs:[],cal:0,p:0,f:0,c:0};}
+    mealData[m.meal_type].descs.push(m.description);
+    mealData[m.meal_type].cal+=(m.calories||0);
+    mealData[m.meal_type].p+=(m.protein||0);
+    mealData[m.meal_type].f+=(m.fat||0);
+    mealData[m.meal_type].c+=(m.carbs||0);
+  });
   const totalCal=(dbMeals||[]).reduce((s,m)=>s+(m.calories||0),0);
   const totalP=(dbMeals||[]).reduce((s,m)=>s+(m.protein||0),0);
 
   document.getElementById('meals').innerHTML=MEALS.map((m,i)=>{
     const types=['breakfast','lunch','dinner','snack'];
     const md=mealData[types[i]];
-    const note=md?`${md.desc}（P${md.p||0}g F${md.f||0}g C${md.c||0}g）`:plan.fast&&i===0?'断食中（12:00まで）':plan.fast?'12:00〜20:00内':'自由に食べてOK';
+    const note=md?`${md.descs.join('、')}（P${md.p}g F${md.f}g C${md.c}g）`:plan.fast&&i===0?'断食中（12:00まで）':plan.fast?'12:00〜20:00内':'自由に食べてOK';
     const kcal=md?`${md.cal}kcal`:'—';
     return`<div class="ml"><div class="ml-i" style="background:${m.bg}">${m.icon}</div><div style="flex:1"><div class="ml-n">${m.name}</div><div class="ml-dt">${note}</div></div><div class="ml-k">${kcal}</div></div>`;
   }).join('');
