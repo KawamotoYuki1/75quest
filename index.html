@@ -150,6 +150,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 footer{text-align:center;padding:20px 0;font-size:9px;color:var(--t3)}
 footer a{color:var(--p);text-decoration:none}
 
+/* Pull to refresh */
+.ptr{text-align:center;height:0;overflow:hidden;transition:height .2s;color:var(--g);font-size:12px;display:flex;align-items:center;justify-content:center}
+.ptr.pulling{height:50px}
+.ptr.refreshing{height:50px}
+
 /* Login */
 .login-overlay{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;align-items:center;justify-content:center}
 .login-overlay.hidden{display:none}
@@ -171,6 +176,7 @@ footer a{color:var(--p);text-decoration:none}
 </style>
 </head>
 <body>
+<div class="ptr" id="ptr">↓ 引っ張って更新</div>
 <!-- Login Screen -->
 <div class="login-overlay" id="loginOverlay">
   <div class="login-box">
@@ -642,6 +648,26 @@ window.updW2=updW2;window.render=render;
 // Initial render
 render();
 setInterval(()=>{if(isToday(viewDate))render()},60000);
+// Pull to refresh
+let ptrStart=0,ptrActive=false;
+const ptrEl=document.getElementById('ptr');
+document.addEventListener('touchstart',e=>{if(window.scrollY===0){ptrStart=e.touches[0].clientY;ptrActive=true}});
+document.addEventListener('touchmove',e=>{
+  if(!ptrActive)return;
+  const diff=e.touches[0].clientY-ptrStart;
+  if(diff>60){ptrEl.classList.add('pulling');ptrEl.textContent='↑ 離して更新';}
+  else if(diff>0){ptrEl.classList.add('pulling');ptrEl.textContent='↓ 引っ張って更新';}
+  else{ptrEl.classList.remove('pulling');}
+});
+document.addEventListener('touchend',async()=>{
+  if(ptrEl.classList.contains('pulling')&&ptrEl.textContent.includes('離して')){
+    ptrEl.textContent='更新中...';ptrEl.classList.add('refreshing');
+    await render();await loadWeight();await renShop();await loadWater();
+    ptrEl.classList.remove('pulling','refreshing');ptrEl.textContent='↓ 引っ張って更新';
+  }else{ptrEl.classList.remove('pulling');}
+  ptrActive=false;
+});
+
 } // end initApp
 </script>
 </body>
