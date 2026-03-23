@@ -372,18 +372,14 @@ const MEALS=[
 ];
 
 // Default events
-const DEFAULT_EVENTS=[
-  {id:1,start:'2026-03-30',end:'2026-04-01',name:'塩抜き3日間',icon:'🧂'},
-  {id:2,start:'2026-04-06',end:'2026-04-06',name:'24時間ファスティング',icon:'🍵'},
-  {id:3,start:'2026-04-14',end:'2026-04-18',name:'プロテイン置き換えWeek',icon:'🥤'},
-  {id:4,start:'2026-04-27',end:'2026-04-29',name:'塩抜き3日間',icon:'🧂'},
-  {id:5,start:'2026-05-05',end:'2026-05-06',name:'48時間ファスティング',icon:'🔥'},
-  {id:6,start:'2026-05-18',end:'2026-05-24',name:'5:2ダイエットWeek',icon:'🔄'},
-];
+// Events are loaded from Supabase DB
 
-// State
-let events=JSON.parse(localStorage.getItem(K+'ev')||'null')||DEFAULT_EVENTS;
-function saveEv(){localStorage.setItem(K+'ev',JSON.stringify(events))}
+// State - events from DB
+let events=[];
+async function loadEvents(){
+  const{data}=await sb.from('events').select('*').order('start_date');
+  events=(data||[]).map(e=>({id:e.id,start:e.start_date,end:e.end_date,name:e.name,icon:e.icon||'📋'}));
+}
 function fmtD(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function isToday(d){const t=new Date();return fmtD(d)===fmtD(t)}
 function getEvFor(dateStr){
@@ -391,7 +387,8 @@ function getEvFor(dateStr){
 }
 
 // Render everything
-function render(){
+async function render(){
+  await loadEvents();
   const d=viewDate;const dw=d.getDay();const plan=TRAIN[dw];
   const ds=fmtD(d);const today=isToday(d);const hh=new Date().getHours();
 
@@ -475,20 +472,55 @@ function render(){
     document.getElementById('exP').innerHTML=`完了 <b id="exDn">0</b> / ${plan.ex.length}`;
   }else{document.getElementById('trExs').innerHTML='';document.getElementById('exP').textContent='';}
 
-  // Meals
+  // Meals from DB
+  const mealTypes={breakfast:'朝食',lunch:'昼食',dinner:'夕食',snack:'間食'};
+  const{data:dbMeals}=await sb.from('meals').select('*').eq('date',ds);
+  const mealData={};
+  (dbMeals||[]).forEach(m=>{mealData[m.meal_type]={desc:m.description,cal:m.calories,p:m.protein,f:m.fat,c:m.carbs}});
+  const totalCal=(dbMeals||[]).reduce((s,m)=>s+(m.calories||0),0);
+  const totalP=(dbMeals||[]).reduce((s,m)=>s+(m.protein||0),0);
+
   document.getElementById('meals').innerHTML=MEALS.map((m,i)=>{
-    const note=plan.fast&&i===0?'断食中（12:00まで）':plan.fast?'12:00〜20:00内':'自由に食べてOK';
-    return`<div class="ml"><div class="ml-i" style="background:${m.bg}">${m.icon}</div><div style="flex:1"><div class="ml-n">${m.name}</div><div class="ml-dt">${note}</div></div><div class="ml-k">—</div></div>`;
+    const types=['breakfast','lunch','dinner','snack'];
+    const md=mealData[types[i]];
+    const note=md?`${md.desc}（P${md.p||0}g F${md.f||0}g C${md.c||0}g）`:plan.fast&&i===0?'断食中（12:00まで）':plan.fast?'12:00〜20:00内':'自由に食べてOK';
+    const kcal=md?`${md.cal}kcal`:'—';
+    return`<div class="ml"><div class="ml-i" style="background:${m.bg}">${m.icon}</div><div style="flex:1"><div class="ml-n">${m.name}</div><div class="ml-dt">${note}</div></div><div class="ml-k">${kcal}</div></div>`;
   }).join('');
+
+  // Calorie bar
+  const calPct=Math.min(100,totalCal/2000*100);
+  document.querySelector('.cal-v').textContent=totalCal;
+  document.getElementById('calBar').style.width=calPct+'%';
 
   // Events list
   renderEvents();
+  // Load water
+  await loadWater();
 }
 
-// Supplements (static, rendered once)
-let water=parseInt(localStorage.getItem(K+'w2')||'0');
-function updW2(n){water=Math.max(0,Math.min(water+n,3000));localStorage.setItem(K+'w2',water);
-  document.getElementById('w2v').textContent=water;document.getElementById('w2b').style.width=Math.min(100,water/2000*100)+'%';document.getElementById('w2p').textContent=Math.round(water/2000*100);}
+// Supplements - water from DB
+let water=0;
+async function loadWater(){
+  const today=fmtD(new Date());
+  const{data}=await sb.from('water_log').select('amount_ml').eq('date',today).maybeSingle();
+  water=data?data.amount_ml:0;
+  updWaterUI();
+}
+function updWaterUI(){
+  const el=document.getElementById('w2v');if(!el)return;
+  el.textContent=water;
+  document.getElementById('w2b').style.width=Math.min(100,water/2000*100)+'%';
+  document.getElementById('w2p').textContent=Math.round(water/2000*100);
+}
+async function updW2(n){
+  water=Math.max(0,Math.min(water+n,3000));
+  updWaterUI();
+  const today=fmtD(new Date());
+  const{data}=await sb.from('water_log').select('id').eq('date',today).maybeSingle();
+  if(data)await sb.from('water_log').update({amount_ml:water}).eq('date',today);
+  else await sb.from('water_log').insert({date:today,amount_ml:water});
+}
 document.getElementById('suppls').innerHTML=SUPPLS.map(s=>{
   if(s.track)return`<div class="sp"><span style="margin-right:3px">${s.i}</span><span class="sp-n">${s.n}</span><span class="sp-w">${s.w}</span>
     <div style="width:100%;margin-top:4px;display:flex;align-items:center;gap:4px">
@@ -515,27 +547,29 @@ function renderEvents(){
   }).join('');
 }
 
-function addEv(){
+async function addEv(){
   const name=document.getElementById('evName').value.trim();
   const start=document.getElementById('evStart').value;
   const end=document.getElementById('evEnd').value||start;
   const icon=document.getElementById('evIcon').value;
   if(!name||!start)return;
-  events.push({id:Date.now(),start,end,name,icon});
-  saveEv();document.getElementById('evName').value='';render();
+  await sb.from('events').insert({name,icon,start_date:start,end_date:end});
+  await loadEvents();document.getElementById('evName').value='';render();
 }
-function delEv(id){events=events.filter(e=>e.id!==id);saveEv();render();}
+async function delEv(id){
+  await sb.from('events').delete().eq('id',id);
+  await loadEvents();render();
+}
 
-// Weight
-function getWL(){return JSON.parse(localStorage.getItem(K+'wl')||'[]')}
-function setWL(l){localStorage.setItem(K+'wl',JSON.stringify(l))}
-function recW(){
+// Weight from DB
+async function recW(){
   const v=parseFloat(document.getElementById('wtInp').value);if(!v||v<40||v>200)return;
-  const l=getWL();const d=fmtD(new Date());
-  const i=l.findIndex(x=>x.d===d);
-  if(i>=0)l[i].w=v;else l.push({d,w:v});
-  l.sort((a,b)=>b.d.localeCompare(a.d));setWL(l);
-  document.getElementById('wtInp').value='';updWt(v);renWL();
+  const d=fmtD(new Date());
+  const{data:existing}=await sb.from('weight_log').select('id').eq('date',d).maybeSingle();
+  if(existing)await sb.from('weight_log').update({weight:v}).eq('date',d);
+  else await sb.from('weight_log').insert({date:d,weight:v});
+  document.getElementById('wtInp').value='';
+  await loadWeight();
 }
 function updWt(c){
   const s=93,g=75,r=s-g,lost=s-c,p=Math.max(0,Math.min(100,lost/r*100));
@@ -544,21 +578,24 @@ function updWt(c){
   document.getElementById('wtPc').textContent=Math.round(p);
   document.getElementById('wtBar').style.width=p+'%';
 }
-function renWL(){
-  const l=getWL();const c=document.getElementById('wtLog');
-  if(!l.length){c.innerHTML='<div style="text-align:center;color:var(--t3);padding:10px;font-size:10px">まだ記録なし</div>';return;}
-  c.innerHTML=l.slice(0,20).map((e,i)=>{
-    const prev=l[i+1];let dh='';
-    if(prev){const d=e.w-prev.w;dh=`<span class="wl-df ${d<=0?'wl-dn':'wl-up'}">${d<=0?'':'+'}${d.toFixed(1)}</span>`;}
-    return`<div class="wl-i"><span class="wl-d">${e.d.slice(5)}</span><span class="wl-v">${e.w.toFixed(1)}kg</span>${dh}</div>`;
+async function loadWeight(){
+  const{data}=await sb.from('weight_log').select('*').order('date',{ascending:false}).limit(20);
+  const c=document.getElementById('wtLog');
+  if(!data||!data.length){
+    c.innerHTML='<div style="text-align:center;color:var(--t3);padding:10px;font-size:10px">まだ記録なし</div>';
+    document.getElementById('wtRm').textContent='体重を記録してスタート！';
+    document.getElementById('wtPc').textContent='—';
+    document.getElementById('wtBar').style.width='0%';
+    return;
+  }
+  updWt(data[0].weight);
+  c.innerHTML=data.map((e,i)=>{
+    const prev=data[i+1];let dh='';
+    if(prev){const d=e.weight-prev.weight;dh=`<span class="wl-df ${d<=0?'wl-dn':'wl-up'}">${d<=0?'':'+'}${d.toFixed(1)}</span>`;}
+    return`<div class="wl-i"><span class="wl-d">${e.date.slice(5)}</span><span class="wl-v">${e.weight.toFixed(1)}kg</span>${dh}</div>`;
   }).join('');
 }
-const wl=getWL();if(wl.length){updWt(wl[0].w)}else{
-  document.getElementById('wtRm').textContent='体重を記録してスタート！';
-  document.getElementById('wtPc').textContent='—';
-  document.getElementById('wtBar').style.width='0%';
-}
-renWL();
+loadWeight();
 
 // Toggle
 function togCk(el){el.classList.toggle('done');const n=el.parentElement.querySelector('.ex-n');if(n)n.classList.toggle('x');
@@ -572,27 +609,26 @@ document.querySelectorAll('.tab').forEach(t=>{t.addEventListener('click',()=>{
 })});
 document.getElementById('wtInp').addEventListener('keypress',e=>{if(e.key==='Enter')recW()});
 
-// Shopping list
-const DEFAULT_SHOP=[
-  {id:1,n:'EZOBOLIC プロテイン',done:false},
-  {id:2,n:'クレアチン',done:false},
-  {id:3,n:'難消化性デキストリン',done:false},
-  {id:4,n:'防風通聖散',done:false},
-  {id:5,n:'ヨガマット',done:false},
-  {id:6,n:'可変式ダンベル 20kg×2',done:false},
-];
-function getShop(){return JSON.parse(localStorage.getItem(K+'sh')||'null')||DEFAULT_SHOP}
-function setShop(l){localStorage.setItem(K+'sh',JSON.stringify(l))}
-function addShop(){
+// Shopping list from DB
+async function addShop(){
   const inp=document.getElementById('shopInp');const t=inp.value.trim();if(!t)return;
-  const l=getShop();l.push({id:Date.now(),n:t,done:false});setShop(l);inp.value='';renShop();
+  await sb.from('shopping_list').insert({item_name:t,purchased:false});
+  inp.value='';await renShop();
 }
-function togShop(id){const l=getShop();const s=l.find(x=>x.id===id);if(s)s.done=!s.done;setShop(l);renShop();}
-function delShop(id){const l=getShop().filter(x=>x.id!==id);setShop(l);renShop();}
-function renShop(){
-  const l=getShop();
+async function togShop(id){
+  const{data}=await sb.from('shopping_list').select('purchased').eq('id',id).maybeSingle();
+  if(data)await sb.from('shopping_list').update({purchased:!data.purchased}).eq('id',id);
+  await renShop();
+}
+async function delShop(id){
+  await sb.from('shopping_list').delete().eq('id',id);
+  await renShop();
+}
+async function renShop(){
+  const{data}=await sb.from('shopping_list').select('*').order('created_at');
+  const l=data||[];
   document.getElementById('shopList').innerHTML=l.map(s=>
-    `<div class="sh"><button class="sh-ck${s.done?' done':''}" onclick="togShop(${s.id})">✓</button><span class="sh-n${s.done?' x':''}">${s.n}</span><button class="sh-del" onclick="delShop(${s.id})">✕</button></div>`
+    `<div class="sh"><button class="sh-ck${s.purchased?' done':''}" onclick="togShop(${s.id})">✓</button><span class="sh-n${s.purchased?' x':''}">${s.item_name}</span>${s.url?`<a href="${s.url}" target="_blank" style="font-size:10px;color:var(--o);text-decoration:none">🛒</a>`:''}<button class="sh-del" onclick="delShop(${s.id})">✕</button></div>`
   ).join('')||'<div style="text-align:center;color:var(--t3);font-size:10px;padding:8px">リストは空です</div>';
 }
 renShop();
